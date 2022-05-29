@@ -7,8 +7,8 @@ import pyperclip
 #각 영화의 페이지 들어가는 것 까지
 
 URL = 'https://movie.naver.com/movie/sdb/browsing/bmovie_year.naver'
-email = 'junsub_lee@naver.com'
-pwd = 'uisbahuiah3876@!'
+email = 'naver_email'
+pwd = 'naver_pwd'
 
 def open_db():
     conn = pymysql.connect(host='localhost', user='js_movie', password='jgtmapm3876', db='movie')
