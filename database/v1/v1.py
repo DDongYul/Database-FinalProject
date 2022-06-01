@@ -27,23 +27,66 @@ def crawling_one_movie(id, driver):
     main_html = driver.page_source
     main_soup = BeautifulSoup(main_html, 'html.parser')
     #convert to tuple, append to movie_list_buf
-    one_movie_inform = []
+    one_movie_inform_tuple = []
     #list of tuples, all elements append to table_buf
-    one_movie_scopes = []
-    one_movie_actors = []
+    one_movie_scope_tuples = []
+    one_movie_actor_tuples = []
     
     #id
-    one_movie_inform.add(id)
+    one_movie_inform_tuple.append(id)
+    #one_movie_infomr_tuple.size == 1
     
     #title
+    #content > div.article > div.mv_info_area > div.mv_info > h3 > a
     title = main_soup.select_one('#content > div.article > div.mv_info_area > div.mv_info > h3 > a:nth-child(1)').text
     if(len(title) > 30):
         title = title[0 : 30]
-    one_movie_inform.add(id)
+    one_movie_inform_tuple.append(title)
+    #one_movie_infomr_tuple.size == 2
+   
+    #info_spec.....
     
-    #summary
+    #info_spec의 dd tag리스트 개요 감독 출연 등급 흥행....
+    infospec_dd_list = main_soup.select('content > div.article > div.mv_info_area > div.mv_info > dl > dd')
     
+    #개요
+    #infospec_dt_step1 = main_soup.select_one('#content > div.article > div.mv_info_area > div.mv_info > dl > dt.step1')
+    if main_soup.select_one('#content > div.article > div.mv_info_area > div.mv_info > dl > dt.step1') is not None: #개요에 해당하는 칸이 웹페이지에 존재, 무조건 존재해야한다.
+        #개요를 분류에 맞게 parsing해야함
+        infospec_dd_summary = infospec_dd_list.pop(0)
+        infospec_dd_summary_span_list = infospec_dd_summary.select('p > span')
+        infospec_dd_summary_span_inform_list = [None, None, None]
+        for infospec_dd_summary_span in infospec_dd_summary_span_list:
+            if infospec_dd_summary_span.select_one('a') is None: #playtime에 대한 span tag, 상영시간은 spantag에 바로 text가 붙어있음
+                infospec_dd_summary_span_inform_list[1] = infospec_dd_summary_span.text[:-1]
+            elif infospec_dd_summary_span.text.find('개봉') != -1: #openingdate에 대한 span tag, scope와 country의 domain에 '개봉'이 들어가는 경우 없음
+                opening_date_str_list = infospec_dd_summary_span.select('a')
+                opening_date_str = ''
+                for opening_date_str_list_e in opening_date_str_list:#20220530 or 2023등의 문자열 형태로 DB에 저장됨                    
+                    opening_date_str = opening_date_str + opening_date_str_list_e.text.replace('.','')
+                infospec_dd_summary_span_inform_list[2] = opening_date_str
+            elif infospec_dd_summary_span.select_one('a').attrs['href'].find('nation') != -1:#coutnry에 대한 spantag
+                infospec_dd_summary_span_inform_list[0] = infospec_dd_summary_span.select_one('a').text
+            else:#scope에 대한 tuple(id,scope)를 one_movie_scope_tuples에 차례대로 저장
+                infospec_dd_summary_spanofscope_a_list = infospec_dd_summary_span.select('a')
+                for infospec_dd_summary_spanofscope_a in infospec_dd_summary_spanofscope_a_list:
+                    one_movie_scope_tuples.append((id, infospec_dd_summary_spanofscope_a.text))
+        one_movie_inform_tuple.extend(infospec_dd_summary_span_inform_list)
+    else:#scope, country, playtime, opendate가 존재 x
+        one_movie_inform_tuple.extend([None,None,None])
+    #one_movie_infomr_tuple.size == 5    
+        
     
+    #감독
+    if main_soup.select_one('#content > div.article > div.mv_info_area > div.mv_info > dl > dt.step2') is not None: #감독에 해당하는 칸이 웹페이지에 존재하는지?
+        infospec_dd_director = infospec_dd_list.pop(0)
+        #coding.....
+        
+        
+        
+    else:#direcotr에 대한정보 존재 x
+        one_movie_inform_tuple.append('None')
+        
     
     
     
