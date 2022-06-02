@@ -12,6 +12,10 @@ naver_movie_dir_url = 'https://movie.naver.com/movie/sdb/browsing/bmovie_year.na
 movie_list_buf = []
 scope_table_buf = []
 actor_table_buf = []
+#movie_list_buf의 사이즈
+movie_list_buf_size = 0
+#movie_list_buf 사이즈의 최대값 최대값이 되면 sql_insert함수 실행
+max_movie_list_buf_size = 5
 
 #하나의 영화에 대한 웹페이지의 도메인 네임에서 id추출하는 함수, code=뒤의 숫자
 def url_to_id(cur_url):
@@ -23,6 +27,7 @@ def crawling_one_movie(id, driver):
     global movie_list_buf
     global scope_table_buf
     global actor_table_buf
+
     
     main_html = driver.page_source
     main_soup = BeautifulSoup(main_html, 'html.parser')
@@ -47,7 +52,7 @@ def crawling_one_movie(id, driver):
     #info_spec.....
     
     #info_spec의 dd tag리스트 개요 감독 출연 등급 흥행....
-    infospec_dd_list = main_soup.select('content > div.article > div.mv_info_area > div.mv_info > dl > dd')
+    infospec_dd_list = main_soup.select('#content > div.article > div.mv_info_area > div.mv_info > dl > dd')
     
     #개요
     #infospec_dt_step1 = main_soup.select_one('#content > div.article > div.mv_info_area > div.mv_info > dl > dt.step1')
@@ -58,12 +63,17 @@ def crawling_one_movie(id, driver):
         infospec_dd_summary_span_inform_list = [None, None, None]
         for infospec_dd_summary_span in infospec_dd_summary_span_list:
             if infospec_dd_summary_span.select_one('a') is None: #playtime에 대한 span tag, 상영시간은 spantag에 바로 text가 붙어있음
-                infospec_dd_summary_span_inform_list[1] = infospec_dd_summary_span.text[:-1]
+                infospec_dd_summary_span_inform_list[1] = infospec_dd_summary_span.text[:-2]
             elif infospec_dd_summary_span.text.find('개봉') != -1: #openingdate에 대한 span tag, scope와 country의 domain에 '개봉'이 들어가는 경우 없음
                 opening_date_str_list = infospec_dd_summary_span.select('a')
                 opening_date_str = ''
-                for opening_date_str_list_e in opening_date_str_list:#20220530 or 2023등의 문자열 형태로 DB에 저장됨                    
-                    opening_date_str = opening_date_str + opening_date_str_list_e.text.replace('.','')
+                # for opening_date_str_list_e in opening_date_str_list:#20220530 or 2023등의 문자열 형태로 DB에 저장됨                    
+                #     opening_date_str = opening_date_str + opening_date_str_list_e.text.replace('.','')
+                # infospec_dd_summary_span_inform_list[2] = opening_date_str
+                if len(opening_date_str_list) < 2:#년도만 나온 경우
+                    opening_date_str = opening_date_str_list[0].text
+                else:#년도와 월,일이 모두 있는 경우
+                    opening_date_str = opening_date_str_list[-2].text.lstrip() + opening_date_str_list[-1].text.replace('.','')
                 infospec_dd_summary_span_inform_list[2] = opening_date_str
             elif infospec_dd_summary_span.select_one('a').attrs['href'].find('nation') != -1:#coutnry에 대한 spantag
                 infospec_dd_summary_span_inform_list[0] = infospec_dd_summary_span.select_one('a').text
@@ -101,8 +111,9 @@ def crawling_one_movie(id, driver):
         one_movie_inform_tuple.append(None)
     #size8
     
-    #배우 배우칸은 항상 존재(?)
-    #배우에 대한 정보창 새탭에 띄우기
+    #배우
+    # movie_end_Tab에서 배우칸은 항상 존재(?)
+    #배우/제작 클릭하고 이 웹페이지를 새탭에 띄우기
     driver.find_element_by_css_selector('#movieEndTabMenu > li:nth-child(2) > a').send_keys(Keys.CONTROL + '\n')
     driver.switch_to.window(driver.window_handles[3])
     actor_html = driver.page_source
@@ -116,11 +127,82 @@ def crawling_one_movie(id, driver):
     driver.switch_to.window(driver.window_handles[2])
     
     #photo link
+    photo_link_a_tag = main_soup.select_one('#movieEndTabMenu > li:nth-child(3) > a')
+    if photo_link_a_tag is not None and photo_link_a_tag.select_one('em').text == '포토':#포토 section이 존재하는 경우
+        one_movie_inform_tuple.append(driver.current_url[:driver.current_url.rfind('/')] + photo_link_a_tag.attrs['href'][1:])
+    else:
+        one_movie_inform_tuple.append(None)
+    #size9
     
+    #video link
+    video_link_a_tag = main_soup.select_one('#movieEndTabMenu > li:nth-child(4) > a')
+    if video_link_a_tag is not None and video_link_a_tag.select_one('em').text == '동영상':
+        one_movie_inform_tuple.append(driver.current_url[:driver.current_url.rfind('/')] + video_link_a_tag.attrs['href'][1:])
+    else:
+        one_movie_inform_tuple.append(None)
+    #size10
     
+    #exp, non_exp score
+    exp_area = main_soup.select_one('#content > div.article > div.section_group.section_group_frst > div > div > div.exp_area')#항상 존재 not None
     
+    one_movie_inform_tuple.append(exp_area.select_one('div > div > span#interest_cnt_basic > em').next_sibling.replace(',',''))
+    one_movie_inform_tuple.append(exp_area.select_one('div > div > span#not_interest_cnt_basic > em').next_sibling.replace(',',''))
+    #size12
     
+    #netizen, journal rate + count
+    score_area = main_soup.select_one('#content > div.article > div.section_group.section_group_frst > div > div > div.score_area')
+    if score_area is not None:#평점 section이 존재
+        #netizen
+        if score_area.select_one('div.netizen_score > div > span > em').text == '0':#네티즌 참여 x
+            one_movie_inform_tuple.extend([None, None])
+        else:
+            one_movie_inform_tuple.append(score_area.select_one('div.netizen_score > div > div > em').text)
+            one_movie_inform_tuple.append(score_area.select_one('div.netizen_score > div > span > em').text.replace(',',''))
+        #journal
+        if score_area.select_one('div.special_score > div > span > em').text == '0':#평론가 참여 x
+            one_movie_inform_tuple.extend([None,None])
+        else:
+            one_movie_inform_tuple.append(score_area.select_one('div.special_score > div > div > em').text)
+            one_movie_inform_tuple.append(score_area.select_one('div.special_score > div > span > em').text)#not replace
+        
+    else:#평점 section이 존재 x
+        one_movie_inform_tuple.extend([None,None,None,None])
+    #size 16
     
+    #table에 대한 buf에 하나의 영화에 대해 crawling한 정보들 모두 넣기
+    movie_list_buf.append(tuple(one_movie_inform_tuple))
+    actor_table_buf.extend(one_movie_actor_tuples)
+    scope_table_buf.extend(one_movie_scope_tuples)
+
+
+#buf들에 있는 내용을 모두 insert하고 buf 초기화    
+def insert_sql(conn, cur):
+    global movie_list_buf
+    global scope_table_buf
+    global actor_table_buf
+    global movie_list_buf_size
+    global max_movie_list_buf_size
+    #각각의 테이블에 record insert하기
+    insert_sql_movie_list = """insert into movie_list(id, title, country, playtime, opening_date, director, movie_rate, audience_count, photo_link, video_link, 
+                                    exp_score, non_exp_score, netizen_rate, netizen_count, journal_rate, journal_count)
+                                    values(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"""
+    insert_sql_actor_table = "insert into actor_table(id, actor) values(%s, %s)"
+    insert_sql_scope_table = "insert into scope_table(id, scope) values(%s, %s)"
+    
+    cur.executemany(insert_sql_movie_list, movie_list_buf)
+    conn.commit()
+    
+    cur.executemany(insert_sql_actor_table, actor_table_buf)
+    conn.commit()
+    
+    cur.executemany(insert_sql_scope_table, scope_table_buf)
+    conn.commit()
+    
+    #buf 비우기    
+    movie_list_buf = []
+    movie_list_buf_size = 0
+    scope_table_buf = []
+    actor_table_buf = []   
     
 def open_db():
     conn = pymysql.connect(host='localhost', user='js_movie', password='jgtmapm3876', db='movie')
@@ -133,10 +215,13 @@ def close_db(conn, cur):
     
     
 def main():
-    #전역변수 초기화
+    #전역변수
     global movie_list_buf
     global scope_table_buf
     global actor_table_buf
+    global movie_list_buf_size
+    global max_movie_list_buf_size
+
     
     #conn, cur 초기화, db열기
     conn, cur = open_db()
@@ -175,15 +260,16 @@ def main():
                 #id추출, 하나의 영화에 대한 메인 웹페이지의 도메인 네임의 code= 뒤의 숫자                
                 #하나의 영화에 대하여 crawling 하고 buf에 넣기....
                 #crawling_one_movie(url_to_id(driver.current_url), driver)
-                
-                # if(len(movie_list_buf > 50)):
-                    #executemany sql...
+                crawling_one_movie(url_to_id(driver.current_url),driver)
+                movie_list_buf_size += 1
                     
-                
                 
                 #현재 탭(하나의 영화에 대한 웹페이지) 닫고 이전 탭(영화 리스트 페이지)로 돌아간다.
                 driver.close()
                 driver.switch_to.window(driver.window_handles[1])
+                
+                if(movie_list_buf_size == max_movie_list_buf_size):
+                    insert_sql(conn, cur)
                 
             #다음 버튼 없을시 break    
             if driver.find_elements_by_css_selector('#old_content > div.pagenavigation > table > tbody > tr > td.next > a'):

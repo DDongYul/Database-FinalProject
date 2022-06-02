@@ -1,3 +1,5 @@
+from os import link
+from urllib.parse import urljoin
 from bs4 import BeautifulSoup
 from urllib.request import urlopen
 
@@ -31,7 +33,24 @@ def audience_count_test():
     obj = soup.select('#content > div.article > div.mv_info_area > div.mv_info > dl > dd')
     print(obj[4].select_one('div > p > span').previous_sibling.replace(',','').replace('명',''))
     
+def photo_link_test():
+    url = 'https://movie.naver.com/movie/bi/mi/basic.naver?code=182016'
+    html = urlopen(url)
+    soup = BeautifulSoup(html, 'html.parser')
+    link = soup.select_one('#movieEndTabMenu > li:nth-child(3) > a').attrs['href']
+    print(link)
+
+def url_join_test():
+    url = 'https://movie.naver.com/movie/bi/mi/basic.naver?code=182016'
+    html = urlopen(url)
+    soup = BeautifulSoup(html, 'html.parser')
+    tmpurl = url[:url.rfind('/')]
+    sub_url = soup.select_one('#movieEndTabMenu > li:nth-child(3) > a').attrs['href'][1:]
+    print(tmpurl + sub_url)
+    
 if __name__ == '__main__':
     # tag_gettext_Test()
     #Nonetype_test()
-    audience_count_test()
+    # audience_count_test()
+    # photo_link_test()
+    url_join_test()

@@ -67,6 +67,11 @@ def actor_tab_exist_test(driver):
     if soup.select_one('#movieEndTabMenu > li:nth-child(2) > a > em').text != '배우/제작진':
         print(driver.current_url)
         quit()
+    driver.find_element_by_css_selector('#movieEndTabMenu > li:nth-child(2) > a').send_keys(Keys.CONTROL + '\n')
+    driver.switch_to.window(driver.window_handles[3])
+    time.sleep(0.5)
+    driver.close()
+    driver.switch_to.window(driver.window_handles[2])
 
 if __name__ == '__main__':
     selenium_base()
