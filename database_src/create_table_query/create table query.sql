@@ -69,11 +69,17 @@ create table actor_table(
     foreign key (id) references movie_list(id) on update cascade on delete cascade
 );
 
-
+select count(*)from movie_list;
+select * from movie_list order by enter_date;
 
 select * from movie_list;
 select * from scope_table;
 select * from actor_table;
+
+
+
+
+
 
 drop table scope_table;
 drop table actor_table;
