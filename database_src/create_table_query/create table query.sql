@@ -4,6 +4,10 @@ create table test_title(
     primary key(id)
 );
 
+create table rate_test(
+	rate decimal(4,2)
+);
+
 set sql_safe_updates = 0;
 set sql_safe_updates = 1;
 
@@ -23,7 +27,7 @@ create table movie_list(
     playtime smallint unsigned,
     opening_date char(8),
     
-    director char(10),
+    director char(20),
     
     movie_rate char(10),
     
@@ -36,10 +40,10 @@ create table movie_list(
 	exp_score mediumint unsigned,
     non_exp_score mediumint unsigned,
     
-    netizen_rate decimal(3,2),
+    netizen_rate decimal(4,2),
     netizen_count mediumint unsigned,
     
-    journal_rate decimal(3,2),
+    journal_rate decimal(4,2),
     journal_count tinyint unsigned,
         
     enter_date datetime default now(),
@@ -47,7 +51,7 @@ create table movie_list(
     primary key(id)
 );
 
-select * from movie_list;
+
 
 
 create table scope_table(
@@ -58,7 +62,7 @@ create table scope_table(
     foreign key (id) references movie_list(id) on update cascade on delete cascade
 );
 
-select * from scope_table;
+
 
 
 create table actor_table(
@@ -69,13 +73,36 @@ create table actor_table(
     foreign key (id) references movie_list(id) on update cascade on delete cascade
 );
 
+select count(*)from movie_list;
+select * from movie_list order by enter_date;
+
+select * from movie_list;
+select * from scope_table;
 select * from actor_table;
 
 
 
-drop table movie_list;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 drop table scope_table;
 drop table actor_table;
+drop table movie_list;
+
 delete from movie_list;
 delete from scope_table;
 delete from actor_table;
