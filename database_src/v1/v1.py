@@ -22,7 +22,7 @@ def url_to_id(cur_url):
     return cur_url.split('code=')[1]
     
 #하나의 영화에 대하여 데이터 크롤링하는 함수 
-def crawling_one_movie(id, driver):
+def crawling_one_movie(id, driver, make_year):
     #전역변수 초기화
     global movie_list_buf
     global scope_table_buf
@@ -45,7 +45,7 @@ def crawling_one_movie(id, driver):
     #content > div.article > div.mv_info_area > div.mv_info > h3 > a
     title = main_soup.select_one('#content > div.article > div.mv_info_area > div.mv_info > h3 > a:nth-child(1)').text
     if(len(title) > 30):
-        title = title[0 : 30]
+        title = title[ : 30]
     one_movie_inform_tuple.append(title)
     #one_movie_infomr_tuple.size == 2
    
@@ -85,15 +85,25 @@ def crawling_one_movie(id, driver):
     else:#scope, country, playtime, opendate가 존재 x
         one_movie_inform_tuple.extend([None,None,None])
     #one_movie_infomr_tuple.size == 5    
-        
+    
+    #opendate가 없는 경우에는 제작년도로 바꿔주기
+    if one_movie_inform_tuple[4] is None:
+        one_movie_inform_tuple[4] = make_year
     
     #감독
     if main_soup.select_one('#content > div.article > div.mv_info_area > div.mv_info > dl > dt.step2') is not None: #감독에 해당하는 칸이 웹페이지에 존재하는지?
         infospec_dd_director = infospec_dd_list.pop(0)
-        one_movie_inform_tuple.append(infospec_dd_director.select_one('p > a').text)
+        director =infospec_dd_director.select_one('p > a').text
+        if(len(director) > 20):
+            director = director[ : 20]
+        one_movie_inform_tuple.append(director)
     else:
         one_movie_inform_tuple.append(None)
     #size 6
+    
+    #출연진 section이 있는경우 infospec_dd_list에서 pop
+    if main_soup.select_one('#content > div.article > div.mv_info_area > div.mv_info > dl > dt.step3') is not None:
+        infospec_dd_list.pop(0)
     
     #등급
     if main_soup.select_one('#content > div.article > div.mv_info_area > div.mv_info > dl > dt.step4') is not None:#등급엡 해당하는 칸이 웹페이지에 존재하는가?
@@ -121,7 +131,11 @@ def crawling_one_movie(id, driver):
     if actor_soup.select_one('#content > div.article > div.section_group.section_group_frst > div > div.made_people') is not None:#배우에 대한 section이 존재한다.
         li_tag_actor_list = actor_soup.select('#content > div.article > div.section_group.section_group_frst > div.obj_section.noline > div > div.lst_people_area.height100 > ul > li')
         for li_tag_actor in li_tag_actor_list:
-            one_movie_actor_tuples.append((id,li_tag_actor.select_one('div > a').text))   
+            actor = li_tag_actor.select_one('div > a').text
+            if(len(actor) > 20):
+                actor = actor[ : 20]
+            one_movie_actor_tuples.append((id, actor))
+            # one_movie_actor_tuples.append((id,li_tag_actor.select_one('div > a').text))   
     #새탭 닫기, 배우에 대한 정보 모두 수집 완료
     driver.close()
     driver.switch_to.window(driver.window_handles[2])
@@ -251,16 +265,20 @@ def main():
         
         #한개의 영화 리스트 페이지에 대하여 영화 링크들을 리스트화한다. 이후 반복적으로 한 페이지 내의 영화들에 대한 정보를 모두 뽑아낸 후 반복적으로 다음 페이지로 넘어감. 다음 페이지가 없을시 종료
         while 1:
-            movie_link_list = driver.find_elements_by_css_selector('#old_content > ul > li > a')
+            # movie_link_list = driver.find_elements_by_css_selector('#old_content > ul > li > a')
+            movie_link_list = driver.find_elements_by_css_selector('#old_content > ul > li')
             for movie_link in movie_link_list:
                 #한개의 영화 ....
-                movie_link.send_keys(Keys.CONTROL + '\n')
+                # movie_link.send_keys(Keys.CONTROL + '\n')
+                make_year = movie_link.find_element_by_css_selector('ul > li > a > b').text
+                tit = movie_link.find_element_by_css_selector('a')
+                tit.send_keys(Keys.CONTROL + '\n')
                 driver.switch_to.window(driver.window_handles[2])
                 
                 #id추출, 하나의 영화에 대한 메인 웹페이지의 도메인 네임의 code= 뒤의 숫자                
                 #하나의 영화에 대하여 crawling 하고 buf에 넣기....
                 #crawling_one_movie(url_to_id(driver.current_url), driver)
-                crawling_one_movie(url_to_id(driver.current_url),driver)
+                crawling_one_movie(url_to_id(driver.current_url),driver,make_year)
                 movie_list_buf_size += 1
                     
                 
@@ -268,14 +286,15 @@ def main():
                 driver.close()
                 driver.switch_to.window(driver.window_handles[1])
                 
-                if(movie_list_buf_size == max_movie_list_buf_size):
-                    insert_sql(conn, cur)
                 
             #다음 버튼 없을시 break    
             if driver.find_elements_by_css_selector('#old_content > div.pagenavigation > table > tbody > tr > td.next > a'):
                 driver.find_element_by_css_selector('#old_content > div.pagenavigation > table > tbody > tr > td.next > a').click()
             else:
                 break
+            
+        #제작년도별로 한꺼번에 executemany
+        insert_sql(conn, cur)
         #해당 년도에 대한 탭(웹페이지) 닫고 다시 맨 처음 웹페이지로 돌아가기       
         driver.close()
         driver.switch_to.window(driver.window_handles[0])        

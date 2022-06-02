@@ -23,7 +23,7 @@ create table movie_list(
     playtime smallint unsigned,
     opening_date char(8),
     
-    director char(10),
+    director char(20),
     
     movie_rate char(10),
     
@@ -47,7 +47,7 @@ create table movie_list(
     primary key(id)
 );
 
-select * from movie_list;
+
 
 
 create table scope_table(
@@ -58,7 +58,7 @@ create table scope_table(
     foreign key (id) references movie_list(id) on update cascade on delete cascade
 );
 
-select * from scope_table;
+
 
 
 create table actor_table(
@@ -69,13 +69,16 @@ create table actor_table(
     foreign key (id) references movie_list(id) on update cascade on delete cascade
 );
 
+
+
+select * from movie_list;
+select * from scope_table;
 select * from actor_table;
 
-
-
-drop table movie_list;
 drop table scope_table;
 drop table actor_table;
+drop table movie_list;
+
 delete from movie_list;
 delete from scope_table;
 delete from actor_table;
