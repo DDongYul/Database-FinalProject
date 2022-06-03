@@ -100,11 +100,13 @@ select * from actor_table;
 select * from exception_table;
 select count(*)from movie_list;
 select * from movie_list order by enter_date desc;
-select * from scope_table where id = 167569;
-select * from actor_table where id = 167569;
-select * from movie_list where id = 167569;
+select * from scope_table where id = 210660;
+select * from actor_table where id = 191559;
+select * from movie_list where id = 210660;
 
-select * from movie_list orde
+select * from actor_table where actor = '데이브 바티스타';
+select * from movie_list where title = '듄';
+
 
 
 

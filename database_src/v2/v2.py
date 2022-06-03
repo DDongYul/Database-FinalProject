@@ -79,7 +79,12 @@ def crawling_one_movie(id, driver, make_year):
                     opening_date_str = opening_date_str_list[-2].text.lstrip() + opening_date_str_list[-1].text.replace('.','')
                 infospec_dd_summary_span_inform_list[2] = opening_date_str
             elif infospec_dd_summary_span.select_one('a').attrs['href'].find('nation') != -1:#coutnry에 대한 spantag
-                infospec_dd_summary_span_inform_list[0] = infospec_dd_summary_span.select_one('a').text
+                # infospec_dd_summary_span_inform_list[0] = infospec_dd_summary_span.select_one('a').text
+                # infospec_dd_summary_span_inform_list[0] = infospec_dd_summary_span.select_one('a').text
+                country = infospec_dd_summary_span.select_one('a').text
+                if(len(country) > 10):
+                    country = country[ : 10]
+                infospec_dd_summary_span_inform_list[0] = country
             else:#scope에 대한 tuple(id,scope)를 one_movie_scope_tuples에 차례대로 저장
                 infospec_dd_summary_spanofscope_a_list = infospec_dd_summary_span.select('a')
                 for infospec_dd_summary_spanofscope_a in infospec_dd_summary_spanofscope_a_list:
@@ -189,7 +194,11 @@ def crawling_one_movie(id, driver, make_year):
     #table에 대한 buf에 하나의 영화에 대해 crawling한 정보들 모두 넣기
     # movie_list_buf.append(tuple(one_movie_inform_tuple))
     movie_list_buf = tuple(one_movie_inform_tuple)
-    actor_table_buf.extend(one_movie_actor_tuples)
+    # actor_table_buf.extend(one_movie_actor_tuples)
+    #중복 제거, 동명이인인경우
+    my_set = set(one_movie_actor_tuples)
+    my_list = list(my_set)
+    actor_table_buf.extend(my_list)
     scope_table_buf.extend(one_movie_scope_tuples)
 
 
