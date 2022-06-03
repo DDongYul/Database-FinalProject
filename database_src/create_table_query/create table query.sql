@@ -30,82 +30,84 @@ select * from test_title;
 
 
 
-create table movie_list(
-	id int not null,
-    
-    title char(30) not null,
-    
-    country char(10),
-    playtime smallint unsigned,
-    opening_date char(8),
-    
-    director char(20),
-    
-    movie_rate char(10),
-    
-    audience_count int unsigned,
-    
-    photo_link varchar(70),
-    
-    video_link varchar(70),
-    
-	exp_score mediumint unsigned,
-    non_exp_score mediumint unsigned,
-    
-    netizen_rate decimal(4,2),
-    netizen_count mediumint unsigned,
-    
-    journal_rate decimal(4,2),
-    journal_count tinyint unsigned,
-        
-    enter_date datetime default now(),
-    
-    primary key(id)
-);
+-- create table movie_list(
+-- 	id int not null,
+--     
+--     title char(30) not null,
+--     
+--     country char(10),
+--     playtime smallint unsigned,
+--     opening_date char(8),
+--     
+--     director char(20),
+--     
+--     movie_rate char(10),
+--     
+--     audience_count int unsigned,
+--     
+--     photo_link varchar(70),
+--     
+--     video_link varchar(70),
+--     
+-- 	exp_score mediumint unsigned,
+--     non_exp_score mediumint unsigned,
+--     
+--     netizen_rate decimal(4,2),
+--     netizen_count mediumint unsigned,
+--     
+--     journal_rate decimal(4,2),
+--     journal_count tinyint unsigned,
+--         
+--     enter_date datetime default now(),
+--     
+--     primary key(id)
+-- );
 
 
 
 
-create table scope_table(
-	id int not null,
-    scope char(6) not null,
-    
-    primary key(id, scope),
-    foreign key (id) references movie_list(id) on update cascade on delete cascade
-);
+-- create table scope_table(
+-- 	id int not null,
+--     scope char(6) not null,
+--     
+--     primary key(id, scope),
+--     foreign key (id) references movie_list(id) on update cascade on delete cascade
+-- );
 
 
 
 
-create table actor_table(
-	id int not null,
-    actor char(20) not null,
-    
-    primary key(id, actor),
-    foreign key (id) references movie_list(id) on update cascade on delete cascade
-);
+-- create table actor_table(
+-- 	id int not null,
+--     actor char(20) not null,
+--     
+--     primary key(id, actor),
+--     foreign key (id) references movie_list(id) on update cascade on delete cascade
+-- );
 
 
-create table exception_table(
-	id int not null,
-    err_msg varchar(100) not null,
-    
-    primary key(id)
-);
+-- create table exception_table(
+-- 	id int not null,
+--     err_msg varchar(100) not null,
+--     
+--     primary key(id)
+-- );
 
 
 select * from movie_list;
 select * from scope_table;
 select * from actor_table;
 select * from exception_table;
+select count(*) from exception_table;
+-- 14 06031200
 select count(*)from movie_list;
 select * from movie_list order by enter_date desc;
-select * from scope_table where id = 210660;
-select * from actor_table where id = 191559;
-select * from movie_list where id = 210660;
-
+select * from scope_table where id = 182524;
+select * from actor_table where id = 182524;
+select * from movie_list where id = 27061;
 select * from actor_table where actor = '데이브 바티스타';
 select * from movie_list where title = '듄';
+select * from movie_list where country = '유고%';
 
 
 
@@ -117,9 +119,9 @@ select * from movie_list where title = '듄';
 
 
 
-
-
-
+-- insert into exception_table(id, err_msg)
+-- values (206890,'country too long'),(206519,'duplicate primary'),(213027,'duplicate primary');
+-- delete from exception_table where id = 192261; 
 
 
 
