@@ -1,4 +1,4 @@
-#executemany를 이용해 한번에 insert
+#execute를 이용해 하나의 영화씩 insert + try except문을 사용해 에러가 난 부분 exception_table에 저장 에러가 난 영화는 아예 insert x
 import pymysql
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
@@ -10,13 +10,15 @@ email = 'junsublee0617'
 pwd = 'jgtmapm3876'
 naver_movie_dir_url = 'https://movie.naver.com/movie/sdb/browsing/bmovie_year.naver'
 #각 테이브에 대한 buf, executemany를 위한 buf, 각 element는 table 형식에 맞는 tuple이다.
-movie_list_buf = []
+# movie_list_buf = []
+movie_list_buf = ()
 scope_table_buf = []
 actor_table_buf = []
+movie_list_size = 0
 #movie_list_buf의 사이즈
-movie_list_buf_size = 0
+# movie_list_buf_size = 0
 #movie_list_buf 사이즈의 최대값 최대값이 되면 sql_insert함수 실행
-max_movie_list_buf_size = 5
+# max_movie_list_buf_size = 5
 
 #하나의 영화에 대한 웹페이지의 도메인 네임에서 id추출하는 함수, code=뒤의 숫자
 def url_to_id(cur_url):
@@ -185,7 +187,8 @@ def crawling_one_movie(id, driver, make_year):
     #size 16
     
     #table에 대한 buf에 하나의 영화에 대해 crawling한 정보들 모두 넣기
-    movie_list_buf.append(tuple(one_movie_inform_tuple))
+    # movie_list_buf.append(tuple(one_movie_inform_tuple))
+    movie_list_buf = tuple(one_movie_inform_tuple)
     actor_table_buf.extend(one_movie_actor_tuples)
     scope_table_buf.extend(one_movie_scope_tuples)
 
@@ -195,8 +198,8 @@ def insert_sql(conn, cur):
     global movie_list_buf
     global scope_table_buf
     global actor_table_buf
-    global movie_list_buf_size
-    global max_movie_list_buf_size
+    # global movie_list_buf_size
+    # global max_movie_list_buf_size
     #각각의 테이블에 record insert하기
     insert_sql_movie_list = """insert into movie_list(id, title, country, playtime, opening_date, director, movie_rate, audience_count, photo_link, video_link, 
                                     exp_score, non_exp_score, netizen_rate, netizen_count, journal_rate, journal_count)
@@ -204,7 +207,7 @@ def insert_sql(conn, cur):
     insert_sql_actor_table = "insert into actor_table(id, actor) values(%s, %s)"
     insert_sql_scope_table = "insert into scope_table(id, scope) values(%s, %s)"
     
-    cur.executemany(insert_sql_movie_list, movie_list_buf)
+    cur.execute(insert_sql_movie_list, movie_list_buf)
     conn.commit()
     
     cur.executemany(insert_sql_actor_table, actor_table_buf)
@@ -214,10 +217,22 @@ def insert_sql(conn, cur):
     conn.commit()
     
     #buf 비우기    
-    movie_list_buf = []
-    movie_list_buf_size = 0
+    movie_list_buf = ()
+    # movie_list_buf_size = 0
     scope_table_buf = []
-    actor_table_buf = []   
+    actor_table_buf = []
+    
+def dealing_exception(id, e, conn, cur):
+    global movie_list_buf
+    global scope_table_buf
+    global actor_table_buf
+    
+    movie_list_buf = ()
+    scope_table_buf = []
+    actor_table_buf = []
+    cur.execute('insert into exception_table values (%s, %s)', (id, str(e)))
+    conn.commit()
+    
     
 def open_db():
     conn = pymysql.connect(host='localhost', user='js_movie', password='jgtmapm3876', db='movie')
@@ -234,8 +249,9 @@ def main():
     global movie_list_buf
     global scope_table_buf
     global actor_table_buf
-    global movie_list_buf_size
-    global max_movie_list_buf_size
+    global movie_list_size
+    # global movie_list_buf_size
+    # global max_movie_list_buf_size
 
     
     #conn, cur 초기화, db열기
@@ -279,9 +295,14 @@ def main():
                 #id추출, 하나의 영화에 대한 메인 웹페이지의 도메인 네임의 code= 뒤의 숫자                
                 #하나의 영화에 대하여 crawling 하고 buf에 넣기....
                 #crawling_one_movie(url_to_id(driver.current_url), driver)
-                crawling_one_movie(url_to_id(driver.current_url),driver,make_year)
-                movie_list_buf_size += 1
-                    
+                try:#하나의 영화에 대한 정보를 insert, exception발생시 내용을 exception_table에저장
+                    crawling_one_movie(url_to_id(driver.current_url),driver,make_year)
+                # movie_list_buf_size += 1
+                    insert_sql(conn, cur)
+                    movie_list_size += 1
+                    # print(None.text)
+                except Exception as e:
+                    dealing_exception(url_to_id(driver.current_url), e, conn, cur)    
                 
                 #현재 탭(하나의 영화에 대한 웹페이지) 닫고 이전 탭(영화 리스트 페이지)로 돌아간다.
                 driver.close()
@@ -294,8 +315,7 @@ def main():
             else:
                 break
             
-        #제작년도별로 한꺼번에 executemany
-        insert_sql(conn, cur)
+        
         #해당 년도에 대한 탭(웹페이지) 닫고 다시 맨 처음 웹페이지로 돌아가기       
         driver.close()
         driver.switch_to.window(driver.window_handles[0])        
@@ -304,6 +324,7 @@ def main():
     close_db(conn,cur)
     #chromedriver닫기
     driver.quit()
+    print(movie_list_size)
     
 if __name__ == '__main__':
     main()

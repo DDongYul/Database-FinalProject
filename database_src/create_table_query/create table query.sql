@@ -1,21 +1,33 @@
+insert into rate_test(rate) values(10.00);
+insert into rate_test(rate) values(9.75);
+
+create table rate_test(
+	rate decimal(4,2)
+);
+
+drop table rate_test;
+select * from rate_test;
+
 create table test_title(
 	id int unsigned,
     title char(30),
     primary key(id)
 );
 
-create table rate_test(
-	rate decimal(4,2)
-);
-
 set sql_safe_updates = 0;
 set sql_safe_updates = 1;
 
 delete from test_title;
-
 drop table test_title;
 
 select * from test_title;
+
+
+
+
+
+
+
 
 
 create table movie_list(
@@ -73,12 +85,26 @@ create table actor_table(
     foreign key (id) references movie_list(id) on update cascade on delete cascade
 );
 
-select count(*)from movie_list;
-select * from movie_list order by enter_date;
+
+create table exception_table(
+	id int not null,
+    err_msg varchar(100) not null,
+    
+    primary key(id)
+);
+
 
 select * from movie_list;
 select * from scope_table;
 select * from actor_table;
+select * from exception_table;
+select count(*)from movie_list;
+select * from movie_list order by enter_date desc;
+select * from scope_table where id = 167569;
+select * from actor_table where id = 167569;
+select * from movie_list where id = 167569;
+
+select * from movie_list orde
 
 
 
@@ -97,12 +123,13 @@ select * from actor_table;
 
 
 
+-- drop table exception_table;
+-- drop table scope_table;
+-- drop table actor_table;
+-- drop table movie_list;
 
 
-drop table scope_table;
-drop table actor_table;
-drop table movie_list;
-
-delete from movie_list;
-delete from scope_table;
-delete from actor_table;
+-- delete from movie_list;
+-- delete from scope_table;
+-- delete from actor_table;
+--  delete from exception_table;
