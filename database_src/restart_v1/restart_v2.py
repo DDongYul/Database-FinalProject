@@ -1,5 +1,4 @@
 #execute를 이용해 하나의 영화씩 insert + try except문을 사용해 에러가 난 부분 exception_table에 저장 에러가 난 영화는 아예 insert x
-from turtle import goto
 import pymysql
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
@@ -18,27 +17,10 @@ scope_table_buf = []
 actor_table_buf = []
 movie_list_size = 0
 #에러가 난 년도, 페이지, 크롤링 시작해야할 영화 id
-# crawling_year = '2021'
-# goto_page = '61'
-# exeception_movie_id = '203956'
-#06030410
-# crawling_year = '2021'
-# goto_page = '234'
-# exeception_movie_id = '208201'
-# year_is_ok = False
-# page_is_ok = False
-# movie_id_is_ok = False
-#06031105
-# crawling_year = '2020'
-# goto_page = '333'
-# exeception_movie_id = '207987'
-# year_is_ok = False
-# page_is_ok = False
-# movie_id_is_ok = False
-#06031900
-crawling_year = '2019'
-goto_page = '433'
-exeception_movie_id = '192261'
+#해당 위치의 영화부터 크롤링 다시시작
+crawling_year = '2017'
+goto_page = '514'
+exeception_movie_id = '171316'
 year_is_ok = False
 page_is_ok = False
 movie_id_is_ok = False
