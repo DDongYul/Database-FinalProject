@@ -1,19 +1,24 @@
-create database naver_movie;
+-- create database naver_movie;
 use naver_movie;
 
 create table movie(
 	movie_id int unsigned,
     -- 길이검사
-    title char(30) not null,
+    title char(40) not null,
+    
     playtime smallint unsigned,
-    opening_date char(8),
+    open_date char(8),
+    
     movie_rate char(10),
+    
     exp_score int unsigned,
     non_exp_score int unsigned,
+    
     netizen_score decimal(4,2),
     netizen_count int unsigned,
     journal_score decimal(4,2),
     journal_count int unsigned,
+    
     enter_date datetime default now(),
     
     primary key(movie_id)
@@ -68,6 +73,8 @@ create table director(
     dir_birth varchar(100),
     dir_awards varchar(100),
     dir_profile varchar(2000),
+    enter_date datetime default now(),
+    
     primary key(dir_id)
 );
 
@@ -86,6 +93,8 @@ create table actor(
     act_birth varchar(100),
     act_awards varchar(100),
     act_profile varchar(2000),
+    enter_date datetime default now(),
+    
     primary key(act_id)
 );
 
@@ -97,3 +106,45 @@ create table act_movie(
     foreign key (movie_id) references movie(movie_id) on update cascade on delete cascade,
     foreign key (act_id) references movie(movie_id) on update cascade on delete cascade
 );
+
+create table exception_table(
+	movie_id int unsigned,
+    _where varchar(20),
+    err_msg varchar(100),
+    enter_date datetime default now()
+);
+
+
+drop table movie_genre;
+drop table movie_journal_review;
+drop table movie_nation;
+drop table movie_netizen_review;
+drop table movie_photo;
+drop table act_movie;
+drop table dir_movie;
+drop table actor;
+drop table director;
+drop table movie;
+
+create table test_ex_many(
+	id int unsigned
+);
+select * from test_ex_many;
+drop table test_ex_many;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
