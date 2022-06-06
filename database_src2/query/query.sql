@@ -115,6 +115,15 @@ create table exception_table(
 );
 
 
+
+
+
+
+
+
+
+
+
 drop table movie_genre;
 drop table movie_journal_review;
 drop table movie_nation;
