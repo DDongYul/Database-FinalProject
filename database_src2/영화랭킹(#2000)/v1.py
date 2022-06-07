@@ -10,6 +10,10 @@ import pyperclip
 import time
 from bs4 import BeautifulSoup
 from selenium.common.exceptions import NoSuchElementException
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+
 
 goto_page = '1'
 goto_movie_id = '191613'
@@ -50,7 +54,7 @@ def dealing_exception(id : str, where : str, err_msg : str, conn : pymysql.Conne
     global one_movie_act_tuples_buf
     global one_movie_movie_act_tuples_buf
         
-    cur.execute('insert into exception_table values (%s, %s, %s)', (id, where, err_msg))
+    cur.execute('insert into exception_table(movie_id, _where, err_msg) values (%s, %s, %s)', (id, where, err_msg))
     conn.commit()
     
     one_movie_inform_tuple_buf = ()
@@ -62,7 +66,7 @@ def dealing_exception(id : str, where : str, err_msg : str, conn : pymysql.Conne
     one_movie_dir_tuples_buf = []
     one_movie_movie_dir_tuples_buf = []
     one_movie_act_tuples_buf = []
-    one_movie_movie_dir_tuples_buf = []
+    one_movie_movie_act_tuples_buf = []
 
 def sql_insert_query(movie_id : str, conn : pymysql.Connection, cur : Cursor):
     global one_movie_inform_tuple_buf
@@ -79,7 +83,7 @@ def sql_insert_query(movie_id : str, conn : pymysql.Connection, cur : Cursor):
     #movie insert
     try:
         movie_insert_sql = """insert into movie(movie_id, title, playtime, open_date, movie_rate, exp_score, non_exp_score, netizen_score, netizen_count, journal_score, journal_count)
-                            values(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s,)"""
+                            values(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s);"""
         cur.execute(movie_insert_sql, one_movie_inform_tuple_buf)
         conn.commit()
     except Exception as e:
@@ -88,7 +92,7 @@ def sql_insert_query(movie_id : str, conn : pymysql.Connection, cur : Cursor):
     
     #movie_nation insert
     try:
-        cur.executemany('insert into movie_nation(movie_id, nation) values(%s, %s)', one_movie_nation_tuples_buf)
+        cur.executemany('insert into movie_nation(movie_id, nation) values(%s, %s);', one_movie_nation_tuples_buf)
         conn.commit()
     except Exception as e:
         dealing_exception(movie_id, 'insert movie_nation', str(e), conn, cur)
@@ -96,7 +100,7 @@ def sql_insert_query(movie_id : str, conn : pymysql.Connection, cur : Cursor):
     
     #movie_genre insert
     try:
-        cur.executemany('insert into movie_genre(movie_id, genre) values (%s, %s)', one_movie_genre_tuples_buf)
+        cur.executemany('insert into movie_genre(movie_id, genre) values (%s, %s);', one_movie_genre_tuples_buf)
         conn.commit()
     except Exception as e:
         dealing_exception(movie_id, 'insert movie_genre', str(e), conn, cur)
@@ -104,7 +108,7 @@ def sql_insert_query(movie_id : str, conn : pymysql.Connection, cur : Cursor):
     
     #movie_photo
     try:
-        cur.executemany('insert into movie_photo(movie_id, genre) values (%s, %s)', one_movie_photo_tuples_buf)
+        cur.executemany('insert into movie_photo(movie_id, photo_link) values (%s, %s);', one_movie_photo_tuples_buf)
         conn.commit()
     except Exception as e:
         dealing_exception(movie_id, 'insert movie_photo', str(e), conn, cur)
@@ -112,7 +116,7 @@ def sql_insert_query(movie_id : str, conn : pymysql.Connection, cur : Cursor):
     
     #movie_netizen_review
     try:
-        cur.executemany('insert into movie_netizen_review(movie_id, user_name, score, review, good, bad) values (%s, %s)', one_movie_netizen_review_tuples_buf)
+        cur.executemany('insert into movie_netizen_review(movie_id, user_name, score, review, good, bad) values (%s, %s, %s, %s, %s, %s);', one_movie_netizen_review_tuples_buf)
         conn.commit()
     except Exception as e:
         dealing_exception(movie_id, 'insert movie_netizen_review', str(e), conn, cur)
@@ -120,7 +124,7 @@ def sql_insert_query(movie_id : str, conn : pymysql.Connection, cur : Cursor):
     
     #movie_journal_review
     try:
-        cur.executemany('insert into movie_journal_review(movie_id, journal_name, score, title, review) values (%s, %s)', one_movie_journal_review_tuples_buf)
+        cur.executemany('insert into movie_journal_review(movie_id, journal_name, score, title, review) values (%s, %s, %s, %s, %s);', one_movie_journal_review_tuples_buf)
         conn.commit()
     except Exception as e:
         dealing_exception(movie_id, 'insert movie_journal_review', str(e), conn, cur)
@@ -128,7 +132,7 @@ def sql_insert_query(movie_id : str, conn : pymysql.Connection, cur : Cursor):
     
     #actor_insert
     try:
-        cur.executemany('insert into actor(act_id, act_name, act_birth, act_awards, act_profile) values(%s, %s, %s, %s, %s)', one_movie_act_tuples_buf)
+        cur.executemany('insert into actor(act_id, act_name, act_birth, act_awards, act_profile) values(%s, %s, %s, %s, %s);', one_movie_act_tuples_buf)
         conn.commit()
     except Exception as e:
         dealing_exception(movie_id, 'insert actor', str(e), conn, cur)
@@ -136,7 +140,7 @@ def sql_insert_query(movie_id : str, conn : pymysql.Connection, cur : Cursor):
     
     #movie_act insert
     try:
-        cur.executemany('insert into movie_act(movie_id, act_id, casting, is_main) values(%s, %s, %s, %s)', one_movie_movie_act_tuples_buf)
+        cur.executemany('insert into movie_act(movie_id, act_id, casting, is_main) values(%s, %s, %s, %s);', one_movie_movie_act_tuples_buf)
         conn.commit()
     except Exception as e:
         dealing_exception(movie_id, 'insert movie_act', str(e), conn, cur)
@@ -144,7 +148,7 @@ def sql_insert_query(movie_id : str, conn : pymysql.Connection, cur : Cursor):
     
     #director insert    
     try:
-        cur.executemany('insert into director(dir_id, dir_name, dir_birth, dir_awards, dir_profile) values(%s, %s, %s, %s, %s)', one_movie_dir_tuples_buf)
+        cur.executemany('insert into director(dir_id, dir_name, dir_birth, dir_awards, dir_profile) values(%s, %s, %s, %s, %s);', one_movie_dir_tuples_buf)
         conn.commit()
     except Exception as e:
         dealing_exception(movie_id, 'insert director', str(e), conn, cur)
@@ -152,7 +156,7 @@ def sql_insert_query(movie_id : str, conn : pymysql.Connection, cur : Cursor):
     
     #movie_director insert
     try:
-        cur.executemany('insert into movie_dir(movie_id, dir_id) values(%s, %s)', one_movie_movie_dir_tuples_buf)
+        cur.executemany('insert into movie_dir(movie_id, dir_id) values(%s, %s);', one_movie_movie_dir_tuples_buf)
         conn.commit()
     except Exception as e:
         dealing_exception(movie_id, 'insert movie_dir', str(e), conn, cur)
@@ -167,7 +171,7 @@ def sql_insert_query(movie_id : str, conn : pymysql.Connection, cur : Cursor):
     one_movie_dir_tuples_buf = []
     one_movie_movie_dir_tuples_buf = []
     one_movie_act_tuples_buf = []
-    one_movie_movie_dir_tuples_buf = []
+    one_movie_movie_act_tuples_buf = []
 
 
 def crawling_one_movie(movie_id : str, driver : webdriver.Chrome,  conn : pymysql.Connection, cur : Cursor):
@@ -270,7 +274,7 @@ def crawling_one_movie(movie_id : str, driver : webdriver.Chrome,  conn : pymysq
         score_count_list = [None, None, None, None]
         if score_area is not None:
             #netizen score,count
-            netizen_count = score_area.select_one('div.netizen_score < div.sc_view > span.user_count > em').text.replace(',','')
+            netizen_count = score_area.select_one('div.netizen_score > div.sc_view > span.user_count > em').text.replace(',','')
             if netizen_count != '0':
                 netizen_score = score_area.select_one('div.netizen_score > div.sc_view > div.star_score > em').text
                 score_count_list[0] = netizen_score
@@ -295,12 +299,17 @@ def crawling_one_movie(movie_id : str, driver : webdriver.Chrome,  conn : pymysq
     for tab_menu_li_a_tag in tab_menu_li_a_tag_list:
         if tab_menu_li_a_tag.get_attribute('title') == '배우/제작진':#배우, 감독에 대해 크롤링 하고 buffer들에 저장
             tab_menu_li_a_tag.send_keys(Keys.CONTROL + '\n')
-            driver.switch_to.window(driver.window_handles[2])            
+            driver.switch_to.window(driver.window_handles[2])
+            #펼쳐보기
+            if check_exists_by_css_select(driver, '#actorMore'):
+                driver.find_element_by_css_selector('#actorMore').click()   
+                          
             dir_actor_list_html =  driver.page_source
             dir_actor_list_soup = BeautifulSoup(dir_actor_list_html, 'html.parser')
+            
             div_obj_section_list = dir_actor_list_soup.select('#content > div.article > div.section_group.section_group_frst > div')
             for div_obj_section in div_obj_section_list:
-                if div_obj_section.select_one('div > div.title_area > h4 > strong').text == '배우':                    
+                if div_obj_section.select_one('div > div.title_area > h4 > strong').text == '배우':                   
                     actor_link_list = driver.find_elements_by_css_selector('#content > div.article > div.section_group.section_group_frst > div.obj_section.noline > div > div.lst_people_area.height100 > ul > li > div > a')
                     for actor_link in actor_link_list:
                         actor_id = url_to_id(actor_link.get_attribute('href'))
@@ -317,7 +326,7 @@ def crawling_one_movie(movie_id : str, driver : webdriver.Chrome,  conn : pymysq
                             one_actor_soup = BeautifulSoup(one_actor_html, 'html.parser')
                             try:
                                 #이름 무조건 존재한다.
-                                act_name = one_actor_soup.select_one('#content > div.article > div.mv_info_area > div.mv_info.character > h3 > a')
+                                act_name = one_actor_soup.select_one('#content > div.article > div.mv_info_area > div.mv_info.character > h3 > a').text
                                 if len(act_name) > 30:
                                     act_name = act_name[:30]
                                 one_actor_inform_list.append(act_name)
@@ -330,7 +339,7 @@ def crawling_one_movie(movie_id : str, driver : webdriver.Chrome,  conn : pymysq
                                 act_info_spec_dd_list = one_actor_soup.select('#content > div.article > div.mv_info_area > div.mv_info.character > dl > dd')
                                 #출생
                                 if one_actor_soup.select_one('#content > div.article > div.mv_info_area > div.mv_info.character > dl > dt.step5') is not None:
-                                    birth = act_info_spec_dd_list.pop(0).text
+                                    birth = act_info_spec_dd_list.pop(0).text.replace('\n','').replace('\t','')
                                     one_actor_inform_list.append(birth)
                                 else:
                                     one_actor_inform_list.append(None)
@@ -345,7 +354,7 @@ def crawling_one_movie(movie_id : str, driver : webdriver.Chrome,  conn : pymysq
                             try:    
                                 #수상경력
                                 if one_actor_soup.select_one('#content > div.article > div.mv_info_area > div.mv_info.character > dl > dt.step8') is not None:
-                                    awards = act_info_spec_dd_list.pop(0).text
+                                    awards = act_info_spec_dd_list.pop(0).text.replace('\t','').replace('\n','')
                                     one_actor_inform_list.append(awards)
                                 else:
                                     one_actor_inform_list.append(None)
@@ -400,7 +409,7 @@ def crawling_one_movie(movie_id : str, driver : webdriver.Chrome,  conn : pymysq
                         dealing_exception(movie_id, 'crawling movie act table', str(e), conn, cur)
                         return 2                                                    
                     
-                elif div_obj_section.select_one('div > div.title_area > h4 > strong') == '감독':#감독 section
+                elif div_obj_section.select_one('div > div.title_area > h4 > strong').text == '감독':#감독 section
                     dir_link_list = driver.find_elements_by_css_selector('#content > div.article > div.section_group.section_group_frst > div.obj_section > div.director > div.dir_obj > div > a')
                     for dir_link in dir_link_list:
                         dir_id = url_to_id(dir_link.get_attribute('href'))
@@ -418,7 +427,7 @@ def crawling_one_movie(movie_id : str, driver : webdriver.Chrome,  conn : pymysq
                             one_dir_soup = BeautifulSoup(one_dir_html, 'html.parser')
                             try:
                                 #이름
-                                dir_name = one_dir_soup.select_one('#content > div.article > div.mv_info_area > div.mv_info.character > h3 > a')
+                                dir_name = one_dir_soup.select_one('#content > div.article > div.mv_info_area > div.mv_info.character > h3 > a').text
                                 if len(dir_name) > 30:
                                     dir_name = dir_name[:30]
                                 one_dir_inform_list.append(dir_name)
@@ -432,7 +441,7 @@ def crawling_one_movie(movie_id : str, driver : webdriver.Chrome,  conn : pymysq
                                 
                                 #출생                          
                                 if one_dir_soup.select_one('#content > div.article > div.mv_info_area > div.mv_info.character > dl > dt.step5') is not None:
-                                    birth = dir_info_spec_dd_list.pop(0).text
+                                    birth = dir_info_spec_dd_list.pop(0).text.replace('\t','').replace('\n','')
                                     one_dir_inform_list.append(birth)
                                 else:
                                     one_dir_inform_list.append(None)
@@ -448,7 +457,7 @@ def crawling_one_movie(movie_id : str, driver : webdriver.Chrome,  conn : pymysq
                             try:        
                                 #수상경력                            
                                 if one_dir_soup.select_one('#content > div.article > div.mv_info_area > div.mv_info.character > dl > dt.step8') is not None:
-                                    awards = dir_info_spec_dd_list.pop(0).text
+                                    awards = dir_info_spec_dd_list.pop(0).text.replace('\n','').replace('\t','')
                                     one_dir_inform_list.append(awards)
                                 else:
                                     one_dir_inform_list.append(None)                            
@@ -492,16 +501,22 @@ def crawling_one_movie(movie_id : str, driver : webdriver.Chrome,  conn : pymysq
             tab_menu_li_a_tag.send_keys(Keys.CONTROL + '\n')
             driver.switch_to.window(driver.window_handles[2])
             
+            #포토탭 들어와서 포토 따오기
+            driver.find_element_by_css_selector('#photo_area > div > div.title_area > div > div.btn_view_mode > a.cick_off').click()
             try:
                 while True:
-                    one_movie_photo_tuples_buf.append(movie_id,driver.find_element_by_css_selector('#photo_area > div > div.img_src._img_area > div > div > div > img').get_attribute('src'))
-                    if not check_exists_by_css_select(driver,'#photo_area > div > div.img_src._img_area > div > div > a.pic_next._photo_next._NoOutline.none'):
-                        driver.find_element_by_css_selector('#photo_area > div > div.img_src._img_area > div > div > a.pic_next._photo_next._NoOutline')
+                    imgsrc_tag_list = driver.find_elements_by_css_selector('#gallery_group > li > a > img')
+                    for imgsrc_tag in imgsrc_tag_list:
+                        one_movie_photo_tuples_buf.append((movie_id, imgsrc_tag.get_attribute('src')))
+                                            
+                    if check_exists_by_css_select(driver, 'a.pg_next > em'):
+                        driver.find_element_by_css_selector('a.pg_next > em').click()
                     else:
-                        break
+                        break    
             except Exception as e:
                 dealing_exception(movie_id, 'crawling photo', str(e), conn, cur)
-                return 2            
+                return 2
+            #포토탭 들어와서 포토 따오기            
             
             driver.close()
             driver.switch_to.window(driver.window_handles[1])
@@ -523,10 +538,10 @@ def crawling_one_movie(movie_id : str, driver : webdriver.Chrome,  conn : pymysq
                 ntz_litag_list = ntz_review_soup.select('body > div > div > div.score_result > ul > li')
                 for ntz_litag in ntz_litag_list:
                     ntz_score = ntz_litag.select_one('div.star_score > em').text
-                    ntz_name = ntz_litag.select_one('div.score_reple > dl > dt > em > a').text
+                    ntz_name = ntz_litag.select_one('div.score_reple > dl > dt > em > a').text.replace('\n','').replace('\\','')
                     ntz_review_text = ntz_litag.select('div.score_reple > p > span')[-1].text.replace('\t','').replace('\n','')
                     good_count = ntz_litag.select_one('div.btn_area > a._sympathyButton > strong').text
-                    bad_count = ntz_litag.select_one('div.btn_area > a._notSympathyButton > strong')
+                    bad_count = ntz_litag.select_one('div.btn_area > a._notSympathyButton > strong').text
                     one_movie_netizen_review_tuples_buf.append((movie_id, ntz_name, ntz_score, ntz_review_text, good_count, bad_count))
             except Exception as e:
                 dealing_exception(movie_id, 'netizen review crawling', str(e), conn, cur)
@@ -557,7 +572,7 @@ def crawling_one_movie(movie_id : str, driver : webdriver.Chrome,  conn : pymysq
                         for sc_li_tag in sc_li_tag_list:
                             sc_score = sc_li_tag.select_one('div.star_score > em').text
                             sc_review_txt = sc_li_tag.select_one('div.score_reple > p').text
-                            sc_name = sc_li_tag.select_one('div.score_reple > dl > dd').text
+                            sc_name = sc_li_tag.select_one('div.score_reple > dl > dd').text.replace('\n','').replace('\t','').lstrip('| ')
                             one_movie_journal_review_tuples_buf.append((movie_id, sc_name, sc_score, None, sc_review_txt))
                 except:
                     dealing_exception(movie_id, 'crawling journal review', str(e), conn, cur)
@@ -576,11 +591,11 @@ def login(driver : webdriver.Chrome):
     driver.find_element_by_css_selector('#id').click()
     pyperclip.copy(email)
     driver.find_element_by_css_selector('#id').send_keys(Keys.CONTROL, 'v')
-    time.sleep(1)   
+    time.sleep(0.3)   
     driver.find_element_by_css_selector('#pw').click()
     pyperclip.copy(pwd)
     driver.find_element_by_css_selector('#pw').send_keys(Keys.CONTROL, 'v')
-    time.sleep(1)
+    time.sleep(0.3)
     driver.find_element_by_css_selector('#log\.login').click() 
        
 def open_db():
