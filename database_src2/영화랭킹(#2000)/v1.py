@@ -64,6 +64,112 @@ def dealing_exception(id : str, where : str, err_msg : str, conn : pymysql.Conne
     one_movie_act_tuples_buf = []
     one_movie_movie_dir_tuples_buf = []
 
+def sql_insert_query(movie_id : str, conn : pymysql.Connection, cur : Cursor):
+    global one_movie_inform_tuple_buf
+    global one_movie_nation_tuples_buf
+    global one_movie_genre_tuples_buf
+    global one_movie_photo_tuples_buf
+    global one_movie_netizen_review_tuples_buf
+    global one_movie_journal_review_tuples_buf
+    global one_movie_dir_tuples_buf
+    global one_movie_movie_dir_tuples_buf
+    global one_movie_act_tuples_buf
+    global one_movie_movie_act_tuples_buf
+    
+    #movie insert
+    try:
+        movie_insert_sql = """insert into movie(movie_id, title, playtime, open_date, movie_rate, exp_score, non_exp_score, netizen_score, netizen_count, journal_score, journal_count)
+                            values(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s,)"""
+        cur.execute(movie_insert_sql, one_movie_inform_tuple_buf)
+        conn.commit()
+    except Exception as e:
+        dealing_exception(movie_id, 'insert movie', str(e), conn, cur)
+        return
+    
+    #movie_nation insert
+    try:
+        cur.executemany('insert into movie_nation(movie_id, nation) values(%s, %s)', one_movie_nation_tuples_buf)
+        conn.commit()
+    except Exception as e:
+        dealing_exception(movie_id, 'insert movie_nation', str(e), conn, cur)
+        return
+    
+    #movie_genre insert
+    try:
+        cur.executemany('insert into movie_genre(movie_id, genre) values (%s, %s)', one_movie_genre_tuples_buf)
+        conn.commit()
+    except Exception as e:
+        dealing_exception(movie_id, 'insert movie_genre', str(e), conn, cur)
+        return
+    
+    #movie_photo
+    try:
+        cur.executemany('insert into movie_photo(movie_id, genre) values (%s, %s)', one_movie_photo_tuples_buf)
+        conn.commit()
+    except Exception as e:
+        dealing_exception(movie_id, 'insert movie_photo', str(e), conn, cur)
+        return
+    
+    #movie_netizen_review
+    try:
+        cur.executemany('insert into movie_netizen_review(movie_id, user_name, score, review, good, bad) values (%s, %s)', one_movie_netizen_review_tuples_buf)
+        conn.commit()
+    except Exception as e:
+        dealing_exception(movie_id, 'insert movie_netizen_review', str(e), conn, cur)
+        return
+    
+    #movie_journal_review
+    try:
+        cur.executemany('insert into movie_journal_review(movie_id, journal_name, score, title, review) values (%s, %s)', one_movie_journal_review_tuples_buf)
+        conn.commit()
+    except Exception as e:
+        dealing_exception(movie_id, 'insert movie_journal_review', str(e), conn, cur)
+        return        
+    
+    #actor_insert
+    try:
+        cur.executemany('insert into actor(act_id, act_name, act_birth, act_awards, act_profile) values(%s, %s, %s, %s, %s)', one_movie_act_tuples_buf)
+        conn.commit()
+    except Exception as e:
+        dealing_exception(movie_id, 'insert actor', str(e), conn, cur)
+        return
+    
+    #movie_act insert
+    try:
+        cur.executemany('insert into movie_act(movie_id, act_id, casting, is_main) values(%s, %s, %s, %s)', one_movie_movie_act_tuples_buf)
+        conn.commit()
+    except Exception as e:
+        dealing_exception(movie_id, 'insert movie_act', str(e), conn, cur)
+        return
+    
+    #director insert    
+    try:
+        cur.executemany('insert into director(dir_id, dir_name, dir_birth, dir_awards, dir_profile) values(%s, %s, %s, %s, %s)', one_movie_dir_tuples_buf)
+        conn.commit()
+    except Exception as e:
+        dealing_exception(movie_id, 'insert director', str(e), conn, cur)
+        return
+    
+    #movie_director insert
+    try:
+        cur.executemany('insert into movie_dir(movie_id, dir_id) values(%s, %s)', one_movie_movie_dir_tuples_buf)
+        conn.commit()
+    except Exception as e:
+        dealing_exception(movie_id, 'insert movie_dir', str(e), conn, cur)
+        return
+    
+    one_movie_inform_tuple_buf = ()
+    one_movie_nation_tuples_buf = []
+    one_movie_genre_tuples_buf = []
+    one_movie_photo_tuples_buf = []
+    one_movie_netizen_review_tuples_buf = []
+    one_movie_journal_review_tuples_buf = []
+    one_movie_dir_tuples_buf = []
+    one_movie_movie_dir_tuples_buf = []
+    one_movie_act_tuples_buf = []
+    one_movie_movie_dir_tuples_buf = []
+
+
 def crawling_one_movie(movie_id : str, driver : webdriver.Chrome,  conn : pymysql.Connection, cur : Cursor):
     
     global one_movie_inform_tuple_buf
@@ -271,8 +377,9 @@ def crawling_one_movie(movie_id : str, driver : webdriver.Chrome,  conn : pymysq
                     try:
                         act_litag_list = div_obj_section.select('div > div.lst_people_area > ul > li')
                         for act_litag in act_litag_list:
+                            #id
                             tmp_act_id = url_to_id(act_litag.select_one('div > a').attrs['href'])
-                            
+                            #주연 여부
                             is_Main = ''
                             if act_litag.select_one('div > div > p.in_prt > em') is not None:
                                 is_Main_str = act_litag.select_one('div > div > p.in_prt > em').text
@@ -282,7 +389,7 @@ def crawling_one_movie(movie_id : str, driver : webdriver.Chrome,  conn : pymysq
                                     is_Main = '0'
                             else :#impossible
                                 is_Main = None
-                            
+                            #역할
                             casting = ''
                             if act_litag.select_one('div > div > p.pe_cmt > span') is not None:
                                 casting = act_litag.select_one('div > div > p.pe_cmt > span').text
@@ -385,11 +492,16 @@ def crawling_one_movie(movie_id : str, driver : webdriver.Chrome,  conn : pymysq
             tab_menu_li_a_tag.send_keys(Keys.CONTROL + '\n')
             driver.switch_to.window(driver.window_handles[2])
             
-            #crawling...
-            #coding......
-            
-            
-            
+            try:
+                while True:
+                    one_movie_photo_tuples_buf.append(movie_id,driver.find_element_by_css_selector('#photo_area > div > div.img_src._img_area > div > div > div > img').get_attribute('src'))
+                    if not check_exists_by_css_select(driver,'#photo_area > div > div.img_src._img_area > div > div > a.pic_next._photo_next._NoOutline.none'):
+                        driver.find_element_by_css_selector('#photo_area > div > div.img_src._img_area > div > div > a.pic_next._photo_next._NoOutline')
+                    else:
+                        break
+            except Exception as e:
+                dealing_exception(movie_id, 'crawling photo', str(e), conn, cur)
+                return 2            
             
             driver.close()
             driver.switch_to.window(driver.window_handles[1])
@@ -397,13 +509,62 @@ def crawling_one_movie(movie_id : str, driver : webdriver.Chrome,  conn : pymysq
             tab_menu_li_a_tag.send_keys(Keys.CONTROL + '\n')
             driver.switch_to.window(driver.window_handles[2])
             
-            #crawling...
+            #평점 탭에 들어옴
+            
+            #네티즌
+            link_to_ntz_review = driver.find_element_by_css_selector('#pointAfterListIframe').get_attribute('src')
+            exec_txt = 'window.open("' + link_to_ntz_review + '")'
+            driver.execute_script(exec_txt)
+            driver.switch_to.window(driver.window_handles[3])
+            #네티즌 리뷰 탭에 들어옴
+            ntz_review_html = driver.page_source
+            ntz_review_soup = BeautifulSoup(ntz_review_html,'html.parser')
+            try:
+                ntz_litag_list = ntz_review_soup.select('body > div > div > div.score_result > ul > li')
+                for ntz_litag in ntz_litag_list:
+                    ntz_score = ntz_litag.select_one('div.star_score > em').text
+                    ntz_name = ntz_litag.select_one('div.score_reple > dl > dt > em > a').text
+                    ntz_review_text = ntz_litag.select('div.score_reple > p > span')[-1].text.replace('\t','').replace('\n','')
+                    good_count = ntz_litag.select_one('div.btn_area > a._sympathyButton > strong').text
+                    bad_count = ntz_litag.select_one('div.btn_area > a._notSympathyButton > strong')
+                    one_movie_netizen_review_tuples_buf.append((movie_id, ntz_name, ntz_score, ntz_review_text, good_count, bad_count))
+            except Exception as e:
+                dealing_exception(movie_id, 'netizen review crawling', str(e), conn, cur)
+                return 3            
+            driver.close()
+            driver.switch_to.window(driver.window_handles[2])            
+            #네티즌....
+            
+            #평점 탭에 돌아옴
+            #평론가
+            all_review_html = driver.page_source
+            all_review_soup = BeautifulSoup(all_review_html,'html.parser')
+            div_score_special = all_review_soup.select_one('#content > div.article > div.section_group.section_group_frst > div.obj_section > div.score_special')
+            if div_score_special is not None:#평론가 평점 존재
+                try:
+                    reporter = div_score_special.select_one('div.reporter')
+                    if reporter is not None:
+                        rep_li_tag_list = reporter.select('ul > li')
+                        for rep_li_tag in rep_li_tag_list:
+                            rep_name = rep_li_tag.select_one('div.reporter_line > dl > dt > a').text
+                            rep_title = rep_li_tag.select_one('div.reporter_line > dl > dd').text
+                            rep_score = rep_li_tag.select_one('div.re_score_grp > div > div > em').text
+                            rep_review_txt = rep_li_tag.select_one('p.tx_report').text
+                            one_movie_journal_review_tuples_buf.append((movie_id, rep_name, rep_score, rep_title, rep_review_txt))
+                    score140 = div_score_special.select_one('div.score140')
+                    if score140 is not None:
+                        sc_li_tag_list = score140.select('div > ul > li')
+                        for sc_li_tag in sc_li_tag_list:
+                            sc_score = sc_li_tag.select_one('div.star_score > em').text
+                            sc_review_txt = sc_li_tag.select_one('div.score_reple > p').text
+                            sc_name = sc_li_tag.select_one('div.score_reple > dl > dd').text
+                            one_movie_journal_review_tuples_buf.append((movie_id, sc_name, sc_score, None, sc_review_txt))
+                except:
+                    dealing_exception(movie_id, 'crawling journal review', str(e), conn, cur)
+            #평론가.....
             
             driver.close()
             driver.switch_to.window(driver.window_handles[1])
-            
-        
-    
     
     return 0    
             
@@ -473,11 +634,17 @@ def main():
                 movie_is_ok = True
             
             #crawling......
-            # crawling_one_movie(url_to_id(driver.current_url), driver)
-            
-            
-            driver.close()
-            driver.switch_to.window(driver.window_handles[0])
+            res = crawling_one_movie(url_to_id(driver.current_url), driver, conn, cur)
+            if(res == 0):
+                sql_insert_query(url_to_id(driver.current_url), conn, cur)        
+                driver.close()
+                driver.switch_to.window(driver.window_handles[0])
+            else:
+                for window in reversed(driver.window_handles):
+                    driver.switch_to.window(window)
+                    if window == driver.window_handles[0]:
+                        break
+                    driver.close()
         
         #다음 페이지가 있으면 넘어가기
         if check_exists_by_css_select(driver, '#old_content > div.pagenavigation > table > tbody > tr > td.next > a'):

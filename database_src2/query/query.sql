@@ -40,7 +40,7 @@ create table movie_genre(
 
 create table movie_photo(
 	movie_id int unsigned,
-    photo_link varchar(200),
+    photo_link varchar(300),
     primary key(movie_id,photo_link),
     foreign key (movie_id) references movie(movie_id) on update cascade on delete cascade
 );
@@ -49,10 +49,9 @@ create table movie_netizen_review(
 	movie_id int unsigned,
     user_name varchar(50),
     score tinyint,
-    review varchar(200),
+    review varchar(300),
     good int unsigned,
     bad int unsigned,
-    primary key(movie_id, user_name),
     foreign key (movie_id) references movie(movie_id) on update cascade on delete cascade
 );
 
@@ -102,7 +101,7 @@ create table movie_act(
     movie_id int unsigned,
 	act_id int unsigned,
     casting varchar(50),
-    is_Main tinyint	,
+    is_main tinyint	,
     foreign key (movie_id) references movie(movie_id) on update cascade on delete cascade,
     foreign key (act_id) references movie(movie_id) on update cascade on delete cascade
 );
@@ -123,17 +122,17 @@ create table exception_table(
 
 
 
-
 drop table movie_genre;
 drop table movie_journal_review;
 drop table movie_nation;
 drop table movie_netizen_review;
 drop table movie_photo;
-drop table act_movie;
-drop table dir_movie;
+drop table movie_act;
+drop table movie_dir;
 drop table actor;
 drop table director;
 drop table movie;
+drop table exception_table;
 
 create table test_ex_many(
 	id int unsigned

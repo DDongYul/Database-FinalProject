@@ -1,5 +1,6 @@
 from multiprocessing.connection import Connection
 from sqlite3 import Cursor
+from this import d
 from time import time
 import pymysql
 from bs4 import BeautifulSoup
@@ -113,6 +114,50 @@ def None_test():
     if casting is None:
         print('yes')
     
+def Tab_test():
+    driver = webdriver.Chrome(executable_path='C:/Users/junsub/study/2022_1/database_final_project/database_src2/chromedriver.exe')
+    driver.get('https://naver.com')
+    driver.execute_script('window.open("https://google.com")')
+    driver.execute_script('window.open("https://google.com")')
+    driver.execute_script('window.open("https://google.com")')
+    for window in reversed(driver.window_handles):
+        driver.switch_to.window(window)
+        if window == driver.window_handles[0]:
+            break
+        driver.close()       
+    a = driver.find_element_by_css_selector('#account > a')   
+    a.send_keys(Keys.CONTROL + '\n')
+    time.sleep(3)
+
+def click_test():
+    driver = webdriver.Chrome(executable_path='C:/Users/junsub/study/2022_1/database_final_project/database_src2/chromedriver.exe')
+    driver.get('https://movie.naver.com/movie/bi/mi/point.naver?code=67786')
+    driver.find_element_by_css_selector('label#actualYnLable').click()
+    time.sleep(3)
+    
+def review_test():
+    url = 'https://movie.naver.com/movie/bi/mi/pointWriteFormList.naver?code=217366&type=after&isActualPointWriteExecute=false&isMileageSubscriptionAlready=false&isMileageSubscriptionReject=false'
+    html = urlopen(url)
+    soup = BeautifulSoup(html, 'html.parser')
+    # li_list = soup.select('div.input_netizen > div.score_result > ul > li')
+    li_list = soup.select('body > div > div > div.score_result > ul > li')
+    # li_list = soup.select('body > div.basic > div.container > div#content > div.article > div.section_group.section_group_first > div.obj_section.noline > div.ifr_module2 > iframe.ifr > html > body')
+    for li in li_list:
+        lst = li.select('div.score_reple > p > span')
+        x = lst[-1]
+        txt = x.text.replace('\t','').replace('\n','')
+        print(len(txt))
+        print(txt)
+        
+def review_test2():
+    driver = webdriver.Chrome(executable_path='C:/Users/junsub/study/2022_1/database_final_project/database_src2/chromedriver.exe')
+    driver.get('https://movie.naver.com/movie/bi/mi/point.naver?code=192608')
+    link = driver.find_element_by_css_selector('#pointAfterListIframe').get_attribute('src')
+    print(link)
+    exceution = 'window.open("' + link + '")'
+    driver.execute_script(exceution)
+    time.sleep(3)
+    
 if __name__ == '__main__':
     #  fetch_test('1')
     #  list_zero_test()
@@ -125,4 +170,9 @@ if __name__ == '__main__':
     # photo_link_test()
     # profile_test()
     # two_class_test()
-    None_test()
+    # None_test()
+    # Tab_test()
+    # click_test()
+    # review_test2()
+    # review_test()
+    Tab_test()
