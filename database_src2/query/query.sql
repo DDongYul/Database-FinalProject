@@ -41,7 +41,6 @@ create table movie_genre(
 create table movie_photo(
 	movie_id int unsigned,
     photo_link varchar(300),
-    primary key(movie_id,photo_link),
     foreign key (movie_id) references movie(movie_id) on update cascade on delete cascade
 );
 
@@ -57,7 +56,7 @@ create table movie_netizen_review(
 
 create table movie_journal_review(
 	movie_id int unsigned,
-    journal_name varchar(10),
+    journal_name varchar(30),
     score tinyint unsigned,
     title varchar(100),
     review varchar(1000),
@@ -103,23 +102,15 @@ create table movie_act(
     casting varchar(50),
     is_main tinyint	,
     foreign key (movie_id) references movie(movie_id) on update cascade on delete cascade,
-    foreign key (act_id) references movie(movie_id) on update cascade on delete cascade
+    foreign key (act_id) references actor(act_id) on update cascade on delete cascade
 );
 
 create table exception_table(
 	movie_id int unsigned,
     _where varchar(20),
-    err_msg varchar(100),
+    err_msg varchar(2000),
     enter_date datetime default now()
 );
-
-
-
-
-
-
-
-
 
 
 drop table movie_genre;
@@ -133,6 +124,29 @@ drop table actor;
 drop table director;
 drop table movie;
 drop table exception_table;
+
+
+
+
+
+
+
+select count(*) from movie_photo where movie_id = 174830;
+select * from movie_netizen_review where movie_id = 174830;
+select * from movie_nation where movie_id = 174830;
+select * from movie_journal_review where movie_id = 174830;
+select * from movie_genre where movie_id = 174830;
+select * from movie_dir where movie_id = 174830;
+select * from movie_act where movie_id = 174830;
+select count(*) from movie_act where movie_id = 174830;
+
+select * from movie_act where movie_id = 144906;
+
+select * from exception_table;
+select * from actor;
+select * from movie;
+
+
 
 create table test_ex_many(
 	id int unsigned
