@@ -4,6 +4,7 @@ from selenium.webdriver.common.keys import Keys
 import pyperclip
 import time
 from bs4 import BeautifulSoup
+from selenium.common.exceptions import NoSuchElementException
 
 goto_page = '1'
 goto_movie_id = '191613'
@@ -20,6 +21,13 @@ one_movie_dir_tuples = []
 one_movie_dir_movie_tuples = []
 one_movie_act_tuples = []
 one_movie_act_movie_tuples = []
+
+def check_exists_by_css_select(driver : webdriver.Chrome, css_path : str):
+    try:
+        driver.find_element_by_css_selector(css_path)
+    except NoSuchElementException:
+        return False
+    return True
 
 def crawling_one_movie(id, driver):
     global one_movie_inform_tuple
@@ -108,7 +116,7 @@ def main():
             driver.switch_to.window(driver.window_handles[0])
         
         #다음 페이지가 있으면 넘어가기
-        if driver.find_element_by_css_selector('#old_content > div.pagenavigation > table > tbody > tr > td.next > a'):
+        if check_exists_by_css_select(driver, '#old_content > div.pagenavigation > table > tbody > tr > td.next > a'):
             driver.find_element_by_css_selector('#old_content > div.pagenavigation > table > tbody > tr > td.next > a').click()
         else:
             break

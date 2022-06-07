@@ -72,15 +72,15 @@ create table director(
     dir_name char(30),
     dir_birth varchar(100),
     dir_awards varchar(100),
-    dir_profile varchar(2000),
+    dir_profile varchar(5000),
     enter_date datetime default now(),
     
     primary key(dir_id)
 );
 
-create table dir_movie(
-	dir_id int unsigned,
+create table movie_dir(	
     movie_id int unsigned,
+	dir_id int unsigned,
     primary key(movie_id, dir_id),
     foreign key (movie_id) references movie(movie_id) on update cascade on delete cascade,
     foreign key (dir_id) references director(dir_id) on update cascade on delete cascade
@@ -92,17 +92,17 @@ create table actor(
     act_name char(30),
     act_birth varchar(100),
     act_awards varchar(100),
-    act_profile varchar(2000),
+    act_profile varchar(5000),
     enter_date datetime default now(),
     
     primary key(act_id)
 );
 
-create table act_movie(
-	act_id int unsigned,
+create table movie_act(
     movie_id int unsigned,
+	act_id int unsigned,
     casting varchar(50),
-    is_Main tinyint,
+    is_Main tinyint	,
     foreign key (movie_id) references movie(movie_id) on update cascade on delete cascade,
     foreign key (act_id) references movie(movie_id) on update cascade on delete cascade
 );
@@ -140,7 +140,7 @@ create table test_ex_many(
 );
 select * from test_ex_many;
 drop table test_ex_many;
-
+delete from test_ex_many;
 
 
 
