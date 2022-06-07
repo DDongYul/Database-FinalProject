@@ -125,8 +125,8 @@ drop table director;
 drop table movie;
 drop table exception_table;
 
-
-
+delete from exception_table;
+set sql_safe_updates = 0;
 
 
 
@@ -138,9 +138,17 @@ select * from movie_journal_review where movie_id = 174830;
 select * from movie_genre where movie_id = 174830;
 select * from movie_dir where movie_id = 174830;
 select * from movie_act where movie_id = 174830;
-select count(*) from movie_act where movie_id = 174830;
+select * from actor where act_id = 423742;
+select count(*) from movie_act where movie_id = 191613;
+select * from movie_act where movie_id = 171539;
+select * from movie_dir where movie_id = 174830;
+select * from director where dir_id = 130535;
+select * from actor where act_id = 130535;
 
 select * from movie_act where movie_id = 144906;
+select * from movie_photo where movie_id = 174830;
+
+select * from movie order by enter_date desc;
 
 select * from exception_table;
 select * from actor;

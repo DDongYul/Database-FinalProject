@@ -10,6 +10,10 @@ import pyperclip
 import time
 from bs4 import BeautifulSoup
 from selenium.common.exceptions import NoSuchElementException
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+
 
 goto_page = '1'
 goto_movie_id = '191613'
@@ -497,17 +501,22 @@ def crawling_one_movie(movie_id : str, driver : webdriver.Chrome,  conn : pymysq
             tab_menu_li_a_tag.send_keys(Keys.CONTROL + '\n')
             driver.switch_to.window(driver.window_handles[2])
             
+            #포토탭 들어와서 포토 따오기
+            driver.find_element_by_css_selector('#photo_area > div > div.title_area > div > div.btn_view_mode > a.cick_off').click()
             try:
                 while True:
-                    #photo_area > div > div.img_src._img_area > div > div > div > img
-                    one_movie_photo_tuples_buf.append((movie_id,driver.find_element_by_css_selector('#photo_area > div > div.img_src._img_area > div > div > div > img').get_attribute('src')))
-                    if not check_exists_by_css_select(driver,'#photo_area > div > div.img_src._img_area > div > div > a.pic_next._photo_next._NoOutline.none'):
-                        driver.find_element_by_css_selector('#photo_area > div > div.img_src._img_area > div > div > a.pic_next._photo_next._NoOutline').click()
+                    imgsrc_tag_list = driver.find_elements_by_css_selector('#gallery_group > li > a > img')
+                    for imgsrc_tag in imgsrc_tag_list:
+                        one_movie_photo_tuples_buf.append((movie_id, imgsrc_tag.get_attribute('src')))
+                                            
+                    if check_exists_by_css_select(driver, 'a.pg_next > em'):
+                        driver.find_element_by_css_selector('a.pg_next > em').click()
                     else:
-                        break
+                        break    
             except Exception as e:
                 dealing_exception(movie_id, 'crawling photo', str(e), conn, cur)
-                return 2            
+                return 2
+            #포토탭 들어와서 포토 따오기            
             
             driver.close()
             driver.switch_to.window(driver.window_handles[1])
