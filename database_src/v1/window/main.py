@@ -1,7 +1,8 @@
 import sys
+import searcher
 from PyQt5.QtWidgets import *
 from PyQt5 import uic
-
+from PyQt5 import QtCore,QtWidgets
 
 form_class = uic.loadUiType("mainActivity.ui")[0]
 class WindowClass(QMainWindow,form_class ):
@@ -14,11 +15,11 @@ class WindowClass(QMainWindow,form_class ):
         self.sortNameButton.clicked.connect(self.sortNameButtonClick)
         self.sortYearButton.clicked.connect(self.sortYearButtonClick)
         self.sortRateButton.clicked.connect(self.sortRateButtonClick)
-        self.tempButton.clicked.connect(self.screenChange)
+        self.tempButton.clicked.connect(self.screenChangeToMovieInfo)
 
-    def screenChange(self):
-        self.window_sub = WindowClassSub()
-        self.window_sub.exec_()
+    def screenChangeToMovieInfo(self):
+        self.window_movieinfo = WindowClassMovieInfo()
+        self.window_movieinfo.exec_()
 
     #검색버튼 눌렀을 시 실행할 함수
     def searchButtonClick(self):
@@ -35,40 +36,54 @@ class WindowClass(QMainWindow,form_class ):
     # 레디오버튼 상태에 따라 검색함수 바뀌게
     def groupboxRadFunction(self) :
         if self.radioButtonTitle.isChecked() :
-            self.searchTitle(self.lineEdit.text())
+            searcher.search(1, self.lineEdit.text())
         elif self.radioButtonActor.isChecked() :
-            self.searchActor(self.lineEdit.text())
+            searcher.search(2, self.lineEdit.text())
         elif self.radioButtonDirector.isChecked() :
-            self.searchDirector(self.lineEdit.text())
+            searcher.search(3, self.lineEdit.text())
         elif self.radioButtonGenre.isChecked() :
-            self.searchGenre(self.lineEdit.text())
+            searcher.search(4, self.lineEdit.text())
         elif self.radioButtonYear.isChecked():
-            self.searchYear(self.lineEdit.text())
+            searcher.search(5, self.lineEdit.text())
         elif self.radioButtonCountry.isChecked():
-            self.searchCountry(self.lineEdit.text())
+            searcher.search(6, self.lineEdit.text())
 
-    # 검색 조건에 따른 검색 함수
-    def searchTitle(self, string):
-        print("입력한 제목 검색어 = {}".format(string))
+#영화 상세정보 화면
+form_class_movieInfo = uic.loadUiType("movie_info.ui")[0]
+class WindowClassMovieInfo(QDialog,QWidget , form_class_movieInfo):
+    def __init__(self):
+        super().__init__()
+        self.setupUi(self)
+        self.show()
 
-    def searchActor(self, string):
-        print("입력한 배우 검색어 = {}".format(string))
+        def actor_click(event):
+            self.window_actorinfo = WindowClassActorInfo()
+            self.window_actorinfo.exec_()
 
-    def searchDirector(self, string):
-        print("입력한 감독 검색어 = {}".format(string))
+        # def makeButton():
+        #
 
-    def searchGenre(self, string):
-        print("입력한 장르 검색어 = {}".format(string))
+        # self.textEdit_actor.setText("이동열,이준섭")
+        # actor_list = self.textEdit_actor.toPlainText().split(",")
+        # for i in range(0,actor_list.__len__()):
+        #     # app = QtWidgets.QApplication(sys.argv)
+        #     button = QtWidgets.QPushButton()
+        #     button.setGeometry(QtCore.QRect(100+i*50,220 , 150+i*50,250))
+        #     # self.button.setGeomerty(QtCore.QRect(100+i*50,220 , 150+i*50,250))
+        #     # button.setText = actor_list[i]
+        #     # self.button.clicked.connet(self.actor_click)
+        #     button.show()
+        self.textEdit_actor.mousePressEvent = actor_click
+        # self.textEdit_director.show()
+        # sys.exit(app.exec_())
 
-    def searchYear(self, string):
-        print("입력한 년도 검색어 = {}".format(string))
+    def screenChangeToActor(self):
+        self.window_actroinfo = WindowClassActorInfo()
+        self.window_actroinfo.exec_()
 
-    def searchCountry(self, string):
-        print("입력한 국적 검색어 = {}".format(string))
 
-###영화 상세정보 화면 (두번째 화면)
-form_class_sub = uic.loadUiType("subActivity.ui")[0]
-class WindowClassSub(QDialog,QWidget , form_class_sub):
+form_class_actorInfo = uic.loadUiType("actor_info.ui")[0]
+class WindowClassActorInfo(QDialog,QWidget ,form_class_actorInfo):
     def __init__(self):
         super().__init__()
         self.setupUi(self)
