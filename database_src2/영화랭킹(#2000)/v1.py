@@ -1,8 +1,4 @@
-from multiprocessing import connection
-from multiprocessing.connection import Connection
 from sqlite3 import Cursor
-from tokenize import String
-from numpy import append
 import pymysql
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
@@ -10,13 +6,10 @@ import pyperclip
 import time
 from bs4 import BeautifulSoup
 from selenium.common.exceptions import NoSuchElementException
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
 
-
-goto_page = '1'
-goto_movie_id = '191613'
+#너는내운명
+goto_page = '9'
+goto_movie_id = '39654'
 page_is_ok = False
 movie_is_ok = False
 
@@ -82,8 +75,8 @@ def sql_insert_query(movie_id : str, conn : pymysql.Connection, cur : Cursor):
     
     #movie insert
     try:
-        movie_insert_sql = """insert into movie(movie_id, title, playtime, open_date, movie_rate, exp_score, non_exp_score, netizen_score, netizen_count, journal_score, journal_count)
-                            values(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s);"""
+        movie_insert_sql = """insert into movie(movie_id, title, playtime, open_date, movie_rate, story, exp_score, non_exp_score, netizen_score, netizen_count, journal_score, journal_count)
+                            values(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s);"""
         cur.execute(movie_insert_sql, one_movie_inform_tuple_buf)
         conn.commit()
     except Exception as e:
@@ -257,13 +250,24 @@ def crawling_one_movie(movie_id : str, driver : webdriver.Chrome,  conn : pymysq
         dealing_exception(movie_id, 'crawling rate', str(e), conn, cur)
         return 1
     
+    try:
+        if check_exists_by_css_select(driver, '#content > div.article > div.section_group.section_group_frst > div > div > div.story_area > p'):
+            story = driver.find_element_by_css_selector('#content > div.article > div.section_group.section_group_frst > div > div > div.story_area > p').text
+            one_movie_inform_list.append(story)
+        else:
+            one_movie_inform_list.append(None)
+    except Exception as e:
+        dealing_exception(movie_id, 'crawling story', str(e), conn, cur)
+        return 1
+    #size6
+    
     try:    
         #exp, non_exp_score 항상 존재한다.
         exp_box = main_soup.select_one('#content > div.article > div.section_group.section_group_frst > div.obj_section > div.score > div.exp_area > div')
         exp_score = exp_box.select_one('div.exp_info > span#interest_cnt_basic > em').next_sibling.replace(',','')
         non_exp_score = exp_box.select_one('div.exp_info > span#not_interest_cnt_basic > em').next_sibling.replace(',','')
         one_movie_inform_list.extend([exp_score, non_exp_score])
-        #size7
+        #size8
     except Exception as e:
         dealing_exception(movie_id, 'crawling expect', str(e), conn, cur)
         return 1
@@ -287,7 +291,7 @@ def crawling_one_movie(movie_id : str, driver : webdriver.Chrome,  conn : pymysq
                 score_count_list[2] = journal_score
                 score_count_list[3] = journal_count
         one_movie_inform_list.extend(score_count_list)
-        #size11
+        #size12
     except Exception as e:
         dealing_exception(movie_id, 'crawling score count', str(e), conn, cur)
         return 1
@@ -379,13 +383,19 @@ def crawling_one_movie(movie_id : str, driver : webdriver.Chrome,  conn : pymysq
                             driver.close()
                             driver.switch_to.window(driver.window_handles[2])
                             #하나의 배우에 대한 크롤링 완료
-      
+                    
+                    #중복제거
+                    one_movie_act_tuples_buf = list(dict.fromkeys(one_movie_act_tuples_buf)) 
                     #배우/제작진 웹페이지로 돌아옴
                     
                     #movie_act_table에 대한 buf채워넣기
                     try:
                         act_litag_list = div_obj_section.select('div > div.lst_people_area > ul > li')
                         for act_litag in act_litag_list:
+                                                       
+                            if act_litag.select_one('div > a') is None: #배우에 대한 페이지가 따로 없을 수도 있음 즉 배우이름이 링크로 되어 있지 않은 경우 그냥 제외
+                                continue
+                            
                             #id
                             tmp_act_id = url_to_id(act_litag.select_one('div > a').attrs['href'])
                             #주연 여부
