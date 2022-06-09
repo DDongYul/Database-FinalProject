@@ -6,14 +6,12 @@ import pyperclip
 import time
 from bs4 import BeautifulSoup
 from selenium.common.exceptions import NoSuchElementException
+import random
 
-#평점순 영화 리스트(상위 2000개)에서 모든 영화 크롤링하는 코드
+#하나의 영화에서 시작하여 연관된 영화를 계속 돌면서 데이터를 모으는 코드
 
-#너는내운명
-goto_page = '9'
-goto_movie_id = '39654'
-page_is_ok = False
-movie_is_ok = False
+iter_num_of_movie = 20
+start_movie_url = 'https://movie.naver.com/movie/bi/mi/scriptAndRelate.naver?code=35939'
 
 one_movie_inform_tuple_buf = ()
 one_movie_nation_tuples_buf = []
@@ -25,6 +23,29 @@ one_movie_dir_tuples_buf = []
 one_movie_movie_dir_tuples_buf = []
 one_movie_act_tuples_buf = []
 one_movie_movie_act_tuples_buf = []
+
+def clear_buffer():
+    global one_movie_inform_tuple_buf
+    global one_movie_nation_tuples_buf
+    global one_movie_genre_tuples_buf
+    global one_movie_photo_tuples_buf
+    global one_movie_netizen_review_tuples_buf
+    global one_movie_journal_review_tuples_buf
+    global one_movie_dir_tuples_buf
+    global one_movie_movie_dir_tuples_buf
+    global one_movie_act_tuples_buf
+    global one_movie_movie_act_tuples_buf
+    
+    one_movie_inform_tuple_buf = ()
+    one_movie_nation_tuples_buf = []
+    one_movie_genre_tuples_buf = []
+    one_movie_photo_tuples_buf = []
+    one_movie_netizen_review_tuples_buf = []
+    one_movie_journal_review_tuples_buf = []
+    one_movie_dir_tuples_buf = []
+    one_movie_movie_dir_tuples_buf = []
+    one_movie_act_tuples_buf = []
+    one_movie_movie_act_tuples_buf = []
 
     
 def url_to_id(cur_url : str):
@@ -52,17 +73,18 @@ def dealing_exception(id : str, where : str, err_msg : str, conn : pymysql.Conne
     cur.execute('insert into exception_table(movie_id, _where, err_msg) values (%s, %s, %s)', (id, where, err_msg))
     conn.commit()
     
-    one_movie_inform_tuple_buf = ()
-    one_movie_nation_tuples_buf = []
-    one_movie_genre_tuples_buf = []
-    one_movie_photo_tuples_buf = []
-    one_movie_netizen_review_tuples_buf = []
-    one_movie_journal_review_tuples_buf = []
-    one_movie_dir_tuples_buf = []
-    one_movie_movie_dir_tuples_buf = []
-    one_movie_act_tuples_buf = []
-    one_movie_movie_act_tuples_buf = []
+    clear_buffer()
+    
+def sql_execute_many(movie_id : str, sql : str, buffer : list, where : str ,conn : pymysql.Connection, cur : Cursor):
+    try:
+        cur.executemany(sql, buffer)
+        conn.commit()
+        return True
+    except Exception as e:
+        dealing_exception(movie_id, where, str(e), conn, cur)
+        return False
 
+#crawling movie를 통해 모은 정보를 sql에 저장하는 함수
 def sql_insert_query(movie_id : str, conn : pymysql.Connection, cur : Cursor):
     global one_movie_inform_tuple_buf
     global one_movie_nation_tuples_buf
@@ -84,91 +106,44 @@ def sql_insert_query(movie_id : str, conn : pymysql.Connection, cur : Cursor):
     except Exception as e:
         dealing_exception(movie_id, 'insert movie', str(e), conn, cur)
         return
+    sql_list = ['insert into movie_nation(movie_id, nation) values(%s, %s);',
+                'insert into movie_genre(movie_id, genre) values (%s, %s);',
+                'insert into movie_photo(movie_id, photo_link) values (%s, %s);',
+                'insert into movie_netizen_review(movie_id, user_name, score, review, good, bad) values (%s, %s, %s, %s, %s, %s);',
+                'insert into movie_journal_review(movie_id, journal_name, score, title, review) values (%s, %s, %s, %s, %s);',
+                'insert into actor(act_id, act_name, act_birth, act_awards, act_profile) values(%s, %s, %s, %s, %s);',
+                'insert into movie_actor(movie_id, act_id, casting, is_main) values(%s, %s, %s, %s);',
+                'insert into director(dir_id, dir_name, dir_birth, dir_awards, dir_profile) values(%s, %s, %s, %s, %s);',
+                'insert into movie_director(movie_id, dir_id) values(%s, %s);'
+                ]
+    buffer_list = [one_movie_nation_tuples_buf,
+                   one_movie_genre_tuples_buf,
+                   one_movie_photo_tuples_buf,
+                   one_movie_netizen_review_tuples_buf,
+                   one_movie_journal_review_tuples_buf,
+                   one_movie_act_tuples_buf,
+                   one_movie_movie_act_tuples_buf,
+                   one_movie_dir_tuples_buf,
+                   one_movie_movie_dir_tuples_buf
+                   ]
+    where_list = ['insert into movie_nation',
+                  'insert into movie_genre',
+                  'insert into movie_photo',
+                  'insert into movie_netizen',
+                  'insert into movie_journal',
+                  'insert into actor',
+                  'insert into movie_actor',
+                  'insert into director',
+                  'insert into movie_director'
+                  ]
     
-    #movie_nation insert
-    try:
-        cur.executemany('insert into movie_nation(movie_id, nation) values(%s, %s);', one_movie_nation_tuples_buf)
-        conn.commit()
-    except Exception as e:
-        dealing_exception(movie_id, 'insert movie_nation', str(e), conn, cur)
-        return
-    
-    #movie_genre insert
-    try:
-        cur.executemany('insert into movie_genre(movie_id, genre) values (%s, %s);', one_movie_genre_tuples_buf)
-        conn.commit()
-    except Exception as e:
-        dealing_exception(movie_id, 'insert movie_genre', str(e), conn, cur)
-        return
-    
-    #movie_photo
-    try:
-        cur.executemany('insert into movie_photo(movie_id, photo_link) values (%s, %s);', one_movie_photo_tuples_buf)
-        conn.commit()
-    except Exception as e:
-        dealing_exception(movie_id, 'insert movie_photo', str(e), conn, cur)
-        return
-    
-    #movie_netizen_review
-    try:
-        cur.executemany('insert into movie_netizen_review(movie_id, user_name, score, review, good, bad) values (%s, %s, %s, %s, %s, %s);', one_movie_netizen_review_tuples_buf)
-        conn.commit()
-    except Exception as e:
-        dealing_exception(movie_id, 'insert movie_netizen_review', str(e), conn, cur)
-        return
-    
-    #movie_journal_review
-    try:
-        cur.executemany('insert into movie_journal_review(movie_id, journal_name, score, title, review) values (%s, %s, %s, %s, %s);', one_movie_journal_review_tuples_buf)
-        conn.commit()
-    except Exception as e:
-        dealing_exception(movie_id, 'insert movie_journal_review', str(e), conn, cur)
-        return        
-    
-    #actor_insert
-    try:
-        cur.executemany('insert into actor(act_id, act_name, act_birth, act_awards, act_profile) values(%s, %s, %s, %s, %s);', one_movie_act_tuples_buf)
-        conn.commit()
-    except Exception as e:
-        dealing_exception(movie_id, 'insert actor', str(e), conn, cur)
-        return
-    
-    #movie_act insert
-    try:
-        cur.executemany('insert into movie_actor(movie_id, act_id, casting, is_main) values(%s, %s, %s, %s);', one_movie_movie_act_tuples_buf)
-        conn.commit()
-    except Exception as e:
-        dealing_exception(movie_id, 'insert movie_actor', str(e), conn, cur)
-        return
-    
-    #director insert    
-    try:
-        cur.executemany('insert into director(dir_id, dir_name, dir_birth, dir_awards, dir_profile) values(%s, %s, %s, %s, %s);', one_movie_dir_tuples_buf)
-        conn.commit()
-    except Exception as e:
-        dealing_exception(movie_id, 'insert director', str(e), conn, cur)
-        return
-    
-    #movie_director insert
-    try:
-        cur.executemany('insert into movie_director(movie_id, dir_id) values(%s, %s);', one_movie_movie_dir_tuples_buf)
-        conn.commit()
-    except Exception as e:
-        dealing_exception(movie_id, 'insert movie_director', str(e), conn, cur)
-        return
-    
-    one_movie_inform_tuple_buf = ()
-    one_movie_nation_tuples_buf = []
-    one_movie_genre_tuples_buf = []
-    one_movie_photo_tuples_buf = []
-    one_movie_netizen_review_tuples_buf = []
-    one_movie_journal_review_tuples_buf = []
-    one_movie_dir_tuples_buf = []
-    one_movie_movie_dir_tuples_buf = []
-    one_movie_act_tuples_buf = []
-    one_movie_movie_act_tuples_buf = []
+    for sql, buffer, where in zip(sql_list, buffer_list, where_list):
+        if not sql_execute_many(movie_id, sql, buffer, where, conn, cur):#sql문 동작 실패시
+            return
+            
+    clear_buffer()
 
-
+#하나의 영화 메인 웹페이지에서 시작하여 필요한 정보를 모두 가지고 온후 그 영화에 대한 메인 웹페이지로 돌아오는 함수
 def crawling_one_movie(movie_id : str, driver : webdriver.Chrome,  conn : pymysql.Connection, cur : Cursor):
     
     global one_movie_inform_tuple_buf
@@ -305,7 +280,8 @@ def crawling_one_movie(movie_id : str, driver : webdriver.Chrome,  conn : pymysq
     for tab_menu_li_a_tag in tab_menu_li_a_tag_list:
         if tab_menu_li_a_tag.get_attribute('title') == '배우/제작진':#배우, 감독에 대해 크롤링 하고 buffer들에 저장
             tab_menu_li_a_tag.send_keys(Keys.CONTROL + '\n')
-            driver.switch_to.window(driver.window_handles[2])
+            # driver.switch_to.window(driver.window_handles[2])
+            driver.switch_to.window(driver.window_handles[-1])
             #펼쳐보기
             if check_exists_by_css_select(driver, '#actorMore'):
                 driver.find_element_by_css_selector('#actorMore').click()   
@@ -322,7 +298,8 @@ def crawling_one_movie(movie_id : str, driver : webdriver.Chrome,  conn : pymysq
                         cur.execute('select * from actor where act_id = %s', (actor_id))
                         if not cur.fetchone():#해당하는 배우에 대해 record가 없는 경우, 그 배우에 대해 record를 만들어야 한다.                        
                             actor_link.send_keys(Keys.CONTROL + '\n')
-                            driver.switch_to.window(driver.window_handles[3])
+                            # driver.switch_to.window(driver.window_handles[3])
+                            driver.switch_to.window(driver.window_handles[-1])
                             #하나의 배우에 대한 웹페이지로 들어옴
                             one_actor_inform_list = []
                             one_actor_inform_list.append(actor_id)
@@ -383,7 +360,8 @@ def crawling_one_movie(movie_id : str, driver : webdriver.Chrome,  conn : pymysq
                             one_movie_act_tuples_buf.append(tuple(one_actor_inform_list))
                                                                                                                                                                                                                             
                             driver.close()
-                            driver.switch_to.window(driver.window_handles[2])
+                            # driver.switch_to.window(driver.window_handles[2])
+                            driver.switch_to.window(driver.window_handles[-1])
                             #하나의 배우에 대한 크롤링 완료
                     
                     #중복제거
@@ -428,7 +406,8 @@ def crawling_one_movie(movie_id : str, driver : webdriver.Chrome,  conn : pymysq
                         cur.execute('select * from director where dir_id = %s', (dir_id))
                         if not cur.fetchone():#감독에 대한 record가 없어서 감독에 대한 record만듬
                             dir_link.send_keys(Keys.CONTROL + '\n')
-                            driver.switch_to.window(driver.window_handles[3])
+                            # driver.switch_to.window(driver.window_handles[3])
+                            driver.switch_to.window(driver.window_handles[-1])
                             one_dir_inform_list = []
                             
                             #id
@@ -494,7 +473,8 @@ def crawling_one_movie(movie_id : str, driver : webdriver.Chrome,  conn : pymysq
                             one_movie_dir_tuples_buf.append(tuple(one_dir_inform_list))
 
                             driver.close()
-                            driver.switch_to.window(driver.window_handles[2])
+                            # driver.switch_to.window(driver.window_handles[2])
+                            driver.switch_to.window(driver.window_handles[-1])
 
                     #배우 / 제작진 웹페이지로 돌아옴
                     
@@ -508,10 +488,12 @@ def crawling_one_movie(movie_id : str, driver : webdriver.Chrome,  conn : pymysq
                         dealing_exception(movie_id, 'crawling movie dir', str(e), conn, cur)
                         return 2          
             driver.close()
-            driver.switch_to.window(driver.window_handles[1])
+            # driver.switch_to.window(driver.window_handles[1])
+            driver.switch_to.window(driver.window_handles[-1])
         elif tab_menu_li_a_tag.get_attribute('title') == '포토':
             tab_menu_li_a_tag.send_keys(Keys.CONTROL + '\n')
-            driver.switch_to.window(driver.window_handles[2])
+            # driver.switch_to.window(driver.window_handles[2])
+            driver.switch_to.window(driver.window_handles[-1])
             
             #포토탭 들어와서 포토 따오기
             driver.find_element_by_css_selector('#photo_area > div > div.title_area > div > div.btn_view_mode > a.cick_off').click()
@@ -531,10 +513,12 @@ def crawling_one_movie(movie_id : str, driver : webdriver.Chrome,  conn : pymysq
             #포토탭 들어와서 포토 따오기            
             
             driver.close()
-            driver.switch_to.window(driver.window_handles[1])
+            # driver.switch_to.window(driver.window_handles[1])
+            driver.switch_to.window(driver.window_handles[-1])
         elif tab_menu_li_a_tag.get_attribute('title') == '평점':
             tab_menu_li_a_tag.send_keys(Keys.CONTROL + '\n')
-            driver.switch_to.window(driver.window_handles[2])
+            # driver.switch_to.window(driver.window_handles[2])
+            driver.switch_to.window(driver.window_handles[-1])
             
             #평점 탭에 들어옴
             
@@ -542,7 +526,8 @@ def crawling_one_movie(movie_id : str, driver : webdriver.Chrome,  conn : pymysq
             link_to_ntz_review = driver.find_element_by_css_selector('#pointAfterListIframe').get_attribute('src')
             exec_txt = 'window.open("' + link_to_ntz_review + '")'
             driver.execute_script(exec_txt)
-            driver.switch_to.window(driver.window_handles[3])
+            # driver.switch_to.window(driver.window_handles[3])
+            driver.switch_to.window(driver.window_handles[-1])
             #네티즌 리뷰 탭에 들어옴
             ntz_review_html = driver.page_source
             ntz_review_soup = BeautifulSoup(ntz_review_html,'html.parser')
@@ -559,7 +544,8 @@ def crawling_one_movie(movie_id : str, driver : webdriver.Chrome,  conn : pymysq
                 dealing_exception(movie_id, 'netizen review crawling', str(e), conn, cur)
                 return 3            
             driver.close()
-            driver.switch_to.window(driver.window_handles[2])            
+            # driver.switch_to.window(driver.window_handles[2])
+            driver.switch_to.window(driver.window_handles[-1])            
             #네티즌....
             
             #평점 탭에 돌아옴
@@ -591,7 +577,8 @@ def crawling_one_movie(movie_id : str, driver : webdriver.Chrome,  conn : pymysq
             #평론가.....
             
             driver.close()
-            driver.switch_to.window(driver.window_handles[1])
+            # driver.switch_to.window(driver.window_handles[1])
+            driver.switch_to.window(driver.window_handles[-1])
     
     return 0    
             
@@ -621,63 +608,36 @@ def close_db(conn : pymysql.Connection, cur : Cursor):
 
 
 def main():
-    global goto_page
-    global goto_movie_id
-    global page_is_ok
-    global movie_is_ok
+    global iter_num_of_movie
+    global start_movie_url
     
-    #6월 5일 기준
-    ranking_url = 'https://movie.naver.com/movie/sdb/rank/rmovie.naver?sel=pnt&date=20220605&page=1'
     conn, cur = open_db()
     driver = webdriver.Chrome(executable_path='C:/Users/junsub/study/2022_1/database_final_project/database_src2/chromedriver.exe')
-    driver.get(url=ranking_url)
+    driver.get(start_movie_url)
     
     #로그인
-    login(driver=driver)
+    time.sleep(0.3)
+    login(driver)
     
-
-    while 1:#하나의 랭킹 웹페이지에서 모든 영화 크롤링 하기
-        #goto
-        if page_is_ok == False and driver.current_url.split('page=')[-1] != goto_page:
-            driver.find_element_by_css_selector('#old_content > div.pagenavigation > table > tbody > tr > td.next > a').click()
-            continue
-        else:
-            page_is_ok = True
-            
-        #하나의 랭킹 웹페이지에서 무비링크 따오기        
-        movie_link_list = driver.find_elements_by_css_selector('#old_content > table > tbody > tr > td.title > div > a')   
-             
-        for movie_link in movie_link_list:#하나의 영화 웹페이지 들어가서 그 영화에 대해서 크롤링하기
-            #영화 웹페이지 새탭에 띄우고 탭 바꾸기
-            movie_link.send_keys(Keys.CONTROL + '\n')
-            driver.switch_to.window(driver.window_handles[1])
-            
-            #goto
-            if movie_is_ok == False and driver.current_url.split('code=')[-1] != goto_movie_id:
-                driver.close()
-                driver.switch_to.window(driver.window_handles[0])
-                continue
-            else:
-                movie_is_ok = True
-            
-            #crawling......
+    #현재 영화의 연관영화 탭에서 랜덤으로 하나 뽑아서 그 영화에 대한 메인 웹페이지로 들어간다.
+    for i in range(0, iter_num_of_movie):
+        cur.execute('select * from movie where movie_id = %s', (url_to_id(driver.current_url)))
+        if not cur.fetchone():
             res = crawling_one_movie(url_to_id(driver.current_url), driver, conn, cur)
-            if(res == 0):
-                sql_insert_query(url_to_id(driver.current_url), conn, cur)        
-                driver.close()
-                driver.switch_to.window(driver.window_handles[0])
+            if res == 0:
+                sql_insert_query(url_to_id(driver.current_url), conn, cur)
             else:
                 for window in reversed(driver.window_handles):
                     driver.switch_to.window(window)
                     if window == driver.window_handles[0]:
                         break
-                    driver.close()
+                    else:
+                        driver.close()
         
-        #다음 페이지가 있으면 넘어가기
-        if check_exists_by_css_select(driver, '#old_content > div.pagenavigation > table > tbody > tr > td.next > a'):
-            driver.find_element_by_css_selector('#old_content > div.pagenavigation > table > tbody > tr > td.next > a').click()
-        else:
-            break
+        driver.find_elements_by_css_selector('#movieEndTabMenu > li > a')[-1].click()
+        movie_link_atag_list = driver.find_elements_by_css_selector('#content > div.article > div.section_group > div.obj_section.noline > div > ul > li > h5 > a')
+        random_index = random.randrange(0, len(movie_link_atag_list))
+        movie_link_atag_list[random_index].click()
     
     
         

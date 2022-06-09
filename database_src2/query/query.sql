@@ -77,7 +77,7 @@ use naver_movie;
 --     primary key(dir_id)
 -- );
 
--- create table movie_dir(	
+-- create table movie_director(	
 --     movie_id int unsigned,
 -- 	dir_id int unsigned,
 --     primary key(movie_id, dir_id),
@@ -97,7 +97,7 @@ use naver_movie;
 --     primary key(act_id)
 -- );
 
--- create table movie_act(
+-- create table movie_actor(
 --     movie_id int unsigned,
 -- 	act_id int unsigned,
 --     casting varchar(50),
@@ -116,7 +116,8 @@ use naver_movie;
 -- alter table movie modify story varchar(5000);
 -- alter table movie add column story varchar(3000) after movie_rate;
 -- alter table exception_table modify _where varchar(100);
-
+-- alter table movie_act rename movie_actor;
+-- alter table movie_dir rename movie_director;
 
 
 
@@ -152,6 +153,7 @@ select * from movie order by enter_date desc;
 select * from actor order by enter_date desc;
 select count(*) from actor;
 select count(*) from movie;
+select count(*) from director;
 select count(*) from exception_table;
 
 select * from movie_netizen_review where movie_id = 31170;
@@ -180,13 +182,13 @@ select * from movie_photo where movie_id = 50869;
 select * from movie_nation where movie_id = 50869;
 
 
-select count(*) from movie_act where movie_id = 191613;
-select * from movie_act where movie_id = 171539;
-select * from movie_dir where movie_id = 174830;
+select count(*) from movie_actor where movie_id = 191613;
+select * from movie_actor where movie_id = 171539;
+select * from movie_director where movie_id = 174830;
 select * from director where dir_id = 130535;
 select * from actor where act_id = 130535;
 
-select * from movie_act where movie_id = 144906;
+select * from movie_actor where movie_id = 144906;
 select * from movie_photo where movie_id = 174830;
 
 select * from movie where title = '시네마 천국';
