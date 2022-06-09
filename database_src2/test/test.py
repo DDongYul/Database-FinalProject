@@ -1,4 +1,5 @@
 from multiprocessing.connection import Connection
+from random import betavariate
 from sqlite3 import Cursor
 from this import d
 from time import time
@@ -158,6 +159,37 @@ def review_test2():
     driver.execute_script(exceution)
     time.sleep(3)
     
+def _19banner_test():
+    html = urlopen('https://movie.naver.com/movie/bi/mi/basic.naver?code=22082')
+    soup = BeautifulSoup(html,'html.parser')
+    # soup.select_one('')
+    #content > div.article > div.mv_info_area > div.mv_info > h3 > a
+    
+    x = soup.select_one('html')
+    print(x.text)
+
+def story_test():
+    driver = webdriver.Chrome('C:/Users/junsub/study/2022_1/database_final_project/database_src2/chromedriver.exe')
+    driver.get('https://movie.naver.com/movie/bi/mi/basic.naver?code=182016')
+    print(driver.find_element_by_css_selector('#content > div.article > div.section_group.section_group_frst > div > div > div.story_area > p').text)
+    
+def story_test2():
+    soup = BeautifulSoup(urlopen('https://movie.naver.com/movie/bi/mi/basic.naver?code=182016'),'html.parser')
+    print(soup.select_one('#content > div.article > div.section_group.section_group_frst > div > div > div.story_area > p').text)
+    
+def fetch_test():
+    conn, cur = open_db()
+    cur.execute('select movie_id from movie;')
+    
+    r = cur.fetchone()
+    x = str(r['movie_id'])
+    print(type(x))
+    
+def _98403_expbox_test_():
+    soup = BeautifulSoup(urlopen('https://movie.naver.com/movie/bi/mi/basic.naver?code=98403'),'html.parser')
+    x = soup.select_one('#content > div > div.section_group.section_group_frst > strong > div:nth-child(4) > div:nth-child(1) > div.exp_area > div')
+    print(type(x))
+    
 if __name__ == '__main__':
     #  fetch_test('1')
     #  list_zero_test()
@@ -175,4 +207,8 @@ if __name__ == '__main__':
     # click_test()
     # review_test2()
     # review_test()
-    Tab_test()
+    # Tab_test()
+    # _19banner_test()
+    # story_test()
+    # fetch_test()
+    _98403_expbox_test_()
