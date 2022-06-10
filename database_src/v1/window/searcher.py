@@ -15,12 +15,14 @@ def search(menu, data):
             if(index != -1):
                 search_data.append(movie_id)
     if menu == 2:
-        actor = "temp"
-        movie_id = "0"
-        reg = QtCore.QRegExp(data)
-        index = reg.indexIn(actor)
-        if (index != -1):
-            search_data.append(movie_id)
+        actor_list = db.get_allActor()
+        for i in range(0,actor_list.__len__()):
+            actor = actor_list[i][1]   #데이터베이스에서 title 가져와서
+            actor_id = actor_list[i][0]
+            reg = QtCore.QRegExp(data)
+            index = reg.indexIn(actor)
+            if(index != -1):
+                search_data.append(actor_id)
     if menu == 3:
         director = "temp"
         movie_id = "0"

@@ -24,6 +24,10 @@ class WindowClass(QMainWindow,form_class ):
         self.window_movieinfo = WindowClassMovieInfo(id)
         self.window_movieinfo.exec_()
 
+    def screenChangeToActorInfo(self, id):
+        self.window_actorinfo = WindowClassActorInfo(id)
+        self.window_actorinfo.exec_()
+
     #검색버튼 눌렀을 시 실행할 함수
     def searchButtonClick(self):
         print("search button clicked")
@@ -47,7 +51,13 @@ class WindowClass(QMainWindow,form_class ):
             self.listWidget.itemClicked.connect(lambda: self.screenChangeToMovieInfo(db.getidWithTitle(self.listWidget.currentItem().text())))
 
         elif self.radioButtonActor.isChecked() :
-            searcher.search(2, self.lineEdit.text())
+            self.listWidget.clear()
+            searchdata = searcher.search(2, self.lineEdit.text())
+            print(searchdata)
+            for i in range(0,searchdata.__len__()):
+                data = db.getAllActDataWithId(searchdata[i])
+                self.listWidget.addItem(data[0]['act_name'])
+            self.listWidget.itemClicked.connect(lambda: self.screenChangeToActorInfo(db.getActIdWithActName(self.listWidget.currentItem().text())))
         elif self.radioButtonDirector.isChecked() :
             searcher.search(3, self.lineEdit.text())
         elif self.radioButtonGenre.isChecked() :
@@ -157,6 +167,23 @@ class WindowClassActorInfo(QDialog,QWidget ,form_class_actorInfo):
             self.textEdit_act_profile.setText(act_data[0]['act_profile'])
         else:
             self.textEdit_act_profile.setText("프로필 정보 없음")
+
+        act_movieid_list = db.getMovieListWithActId(id)
+        print(act_movieid_list)
+
+        def screenChangeToMovieInfo(id):
+            window_movieinfo = WindowClassMovieInfo(id)
+            window_movieinfo.exec_()
+
+        for i in range(0,act_movieid_list.__len__()):
+            movie = db.getTitleWithId(act_movieid_list[i]['movie_id'])
+            print(movie)
+            movie = movie[0]['title']
+            self.listWidget_movieList.addItem(movie)
+        self.listWidget_movieList.itemClicked.connect(
+            lambda: screenChangeToMovieInfo(db.getidWithTitle(self.listWidget_movieList.currentItem().text())))
+
+
 
 form_class_directorInfo = uic.loadUiType("director_info.ui")[0]
 class WindowClassDirectorInfo(QDialog,QWidget ,form_class_directorInfo):

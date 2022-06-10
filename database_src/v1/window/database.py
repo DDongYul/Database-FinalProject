@@ -28,6 +28,20 @@ def get_allMovie():
         r=cur1.fetchone()
     return movie_title_list
 
+def get_allActor():
+    conn1, cur1 = open_db()
+    sql = """
+            select act_id,act_name
+            from actor;
+            """
+    cur1.execute(sql)
+    actor_list = []
+    r = cur1.fetchone()
+    while r:
+        actor_list.append([r['act_id'], r['act_name']])
+        r = cur1.fetchone()
+    return actor_list
+
 def getidWithTitle(title):      #영화 제목으로 id 받아옴
     conn1, cur1 = open_db()
     sql = """
@@ -91,6 +105,28 @@ def getAllActDataWithId(id):
           from actor
           where act_id = '{0}';
         """.format(id)
+    cur1.execute(sql)
+    r = cur1.fetchall()
+    return r
+
+def getMovieListWithActId(id):  #출연작
+    conn1, cur1 = open_db()
+    sql = """
+            select movie_id
+            from movie_actor
+            where act_id = '{0}';
+        """.format(id)
+    cur1.execute(sql)
+    r = cur1.fetchall()
+    return r
+
+def getTitleWithId(id):
+    conn1, cur1 = open_db()
+    sql = """
+                select title
+                from movie
+                where movie_id = '{0}';
+            """.format(id)
     cur1.execute(sql)
     r = cur1.fetchall()
     return r
