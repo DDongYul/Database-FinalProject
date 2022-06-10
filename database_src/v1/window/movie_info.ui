@@ -151,8 +151,8 @@ p, li { white-space: pre-wrap; }
   <widget class="QTextEdit" name="textEdit_playTime">
    <property name="geometry">
     <rect>
-     <x>30</x>
-     <y>140</y>
+     <x>330</x>
+     <y>180</y>
      <width>121</width>
      <height>31</height>
     </rect>
@@ -168,8 +168,8 @@ p, li { white-space: pre-wrap; }
   <widget class="QTextEdit" name="textEdit_openingDate">
    <property name="geometry">
     <rect>
-     <x>200</x>
-     <y>140</y>
+     <x>470</x>
+     <y>180</y>
      <width>141</width>
      <height>31</height>
     </rect>
@@ -186,7 +186,7 @@ p, li { white-space: pre-wrap; }
    <property name="geometry">
     <rect>
      <x>30</x>
-     <y>310</y>
+     <y>130</y>
      <width>51</width>
      <height>31</height>
     </rect>
@@ -199,28 +199,11 @@ p, li { white-space: pre-wrap; }
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;감독&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
    </property>
   </widget>
-  <widget class="QTextEdit" name="textEdit_director">
-   <property name="geometry">
-    <rect>
-     <x>100</x>
-     <y>310</y>
-     <width>131</width>
-     <height>30</height>
-    </rect>
-   </property>
-   <property name="html">
-    <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
-&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
-p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'.AppleSystemUIFont'; font-size:13pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;br /&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-   </property>
-  </widget>
   <widget class="QTextEdit" name="textEdit_15">
    <property name="geometry">
     <rect>
      <x>30</x>
-     <y>360</y>
+     <y>320</y>
      <width>51</width>
      <height>31</height>
     </rect>
@@ -236,7 +219,7 @@ p, li { white-space: pre-wrap; }
   <widget class="QTextEdit" name="textEdit_rate">
    <property name="geometry">
     <rect>
-     <x>100</x>
+     <x>90</x>
      <y>90</y>
      <width>121</width>
      <height>31</height>
@@ -271,7 +254,7 @@ p, li { white-space: pre-wrap; }
    <property name="geometry">
     <rect>
      <x>100</x>
-     <y>360</y>
+     <y>320</y>
      <width>201</width>
      <height>181</height>
     </rect>
@@ -292,6 +275,16 @@ p, li { white-space: pre-wrap; }
 p, li { white-space: pre-wrap; }
 &lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'.AppleSystemUIFont'; font-size:13pt; font-weight:400; font-style:normal;&quot;&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;장르&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+   </property>
+  </widget>
+  <widget class="QListWidget" name="listWidget_director">
+   <property name="geometry">
+    <rect>
+     <x>90</x>
+     <y>134</y>
+     <width>171</width>
+     <height>21</height>
+    </rect>
    </property>
   </widget>
  </widget>

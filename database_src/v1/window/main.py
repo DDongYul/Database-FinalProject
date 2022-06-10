@@ -77,15 +77,12 @@ class WindowClassMovieInfo(QDialog,QWidget , form_class_movieInfo):
 ########################배우 데이터 처리#############################################################
 
         director_id = db.getDirectorIdWithId(id)
-        print(director_id)
         director_name = db.getDirectorNameWithDirId(director_id['dir_id'])
-        print(director_name)
-        self.textEdit_director.setText(director_name['dir_name'])
+        self.listWidget_director.addItem(director_name['dir_name'])
         def screenChangeToDirectorInfo(id):
             window_directorinfo = WindowClassDirectorInfo(id)
             window_directorinfo.exec_()
-        dir_id = db.getDirIdwithDirName(self.textEdit_director.toPlainText())
-        # self.textEdit_director.mousePressEvent = (screenChangeToDirectorInfo(dir_id['dir_id']))
+        self.listWidget_director.itemClicked.connect(lambda:screenChangeToDirectorInfo(db.getDirIdwithDirName(self.listWidget_director.currentItem().text())['dir_id']))
 
 
 
@@ -119,6 +116,21 @@ class WindowClassDirectorInfo(QDialog,QWidget ,form_class_directorInfo):
         super().__init__()
         self.setupUi(self)
         self.show()
+
+        dir_data = db.getAllDirDataWithId(id)
+        self.textEdit_dir_name.setText(dir_data[0]['dir_name'])
+        if(dir_data[0]['dir_birth']!=None):
+            self.textEdit_dir_birth.setText("출생: " + dir_data[0]['dir_birth'])
+        else:
+            self.textEdit_dir_birth.setText("출생 정보 없음")
+        if (dir_data[0]['dir_birth'] != None):
+            self.textEdit_dir_rewards.setText("수상내역: " + dir_data[0]['dir_awards'])
+        else:
+            self.textEdit_dir_rewards.setText("수상내역 정보 없음")
+        if (dir_data[0]['dir_profile'] != None):
+            self.textEdit_dir_profile.setText(dir_data[0]['dir_profile'])
+        else:
+            self.textEdit_dir_profile.setText("프로필 정보 없음")
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)

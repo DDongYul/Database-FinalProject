@@ -106,6 +106,17 @@ def getDirIdwithDirName(name):
     r = cur1.fetchone()
     return r
 
+def getAllDirDataWithId(id):
+    conn1, cur1 = open_db()
+    sql = """
+                        select *
+                        from director
+                        where dir_id = '{0}';
+                        """.format(id)
+    cur1.execute(sql)
+    r = cur1.fetchall()
+    return r
+
 def print_Movie(id):
     conn1, cur1 = open_db()
     sql = """
