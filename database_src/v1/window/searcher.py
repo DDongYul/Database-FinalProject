@@ -32,26 +32,26 @@ def search(menu, data):
             index = reg.indexIn(director)
             if (index != -1):
                 search_data.append(director_id)
-    if menu == 4:
-        genre = "temp"
-        movie_id = "0"
-        reg = QtCore.QRegExp(data)
-        index = reg.indexIn(genre)
-        if (index != -1):
-            search_data.append(movie_id)
-    if menu == 5:
-        year = "temp"
-        movie_id = "0"
-        reg = QtCore.QRegExp(data)
-        index = reg.indexIn(year)
-        if (index != -1):
-            search_data.append(movie_id)
-    if menu == 6:
-        country = "temp"
-        movie_id = "0"
-        reg = QtCore.QRegExp(data)
-        index = reg.indexIn(country)
-        if (index != -1):
-            search_data.append(movie_id)
+    # if menu == 4:
+    #     genre = "temp"
+    #     movie_id = "0"
+    #     reg = QtCore.QRegExp(data)
+    #     index = reg.indexIn(genre)
+    #     if (index != -1):
+    #         search_data.append(movie_id)
+    # if menu == 5:
+    #     year = "temp"
+    #     movie_id = "0"
+    #     reg = QtCore.QRegExp(data)
+    #     index = reg.indexIn(year)
+    #     if (index != -1):
+    #         search_data.append(movie_id)
+    # if menu == 6:
+    #     country = "temp"
+    #     movie_id = "0"
+    #     reg = QtCore.QRegExp(data)
+    #     index = reg.indexIn(country)
+    #     if (index != -1):
+    #         search_data.append(movie_id)
     return search_data
 
