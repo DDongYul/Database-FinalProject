@@ -28,6 +28,10 @@ class WindowClass(QMainWindow,form_class ):
         self.window_actorinfo = WindowClassActorInfo(id)
         self.window_actorinfo.exec_()
 
+    def screenChangeToDirectorInfo(self, id):
+        self.window_directorinfo = WindowClassDirectorInfo(id)
+        self.window_directorinfo.exec_()
+
     #검색버튼 눌렀을 시 실행할 함수
     def searchButtonClick(self):
         print("search button clicked")
@@ -57,9 +61,18 @@ class WindowClass(QMainWindow,form_class ):
             for i in range(0,searchdata.__len__()):
                 data = db.getAllActDataWithId(searchdata[i])
                 self.listWidget.addItem(data[0]['act_name'])
-            self.listWidget.itemClicked.connect(lambda: self.screenChangeToActorInfo(db.getActIdWithActName(self.listWidget.currentItem().text())))
+            self.listWidget.itemClicked.connect(lambda: self.screenChangeToActorInfo(db.getActIdWithActName(self.listWidget.currentItem().text())[0]['act_id']))
+
         elif self.radioButtonDirector.isChecked() :
-            searcher.search(3, self.lineEdit.text())
+            self.listWidget.clear()
+            searchdata = searcher.search(3, self.lineEdit.text())
+            print(searchdata)
+            for i in range(0, searchdata.__len__()):
+                data = db.getAllDirDataWithId(searchdata[i])
+                self.listWidget.addItem(data[0]['dir_name'])
+            self.listWidget.itemClicked.connect(
+                lambda: self.screenChangeToDirectorInfo(db.getDirectorIdWithDirectorName(self.listWidget.currentItem().text())))
+
         elif self.radioButtonGenre.isChecked() :
             searcher.search(4, self.lineEdit.text())
         elif self.radioButtonYear.isChecked():
@@ -89,16 +102,19 @@ class WindowClassMovieInfo(QDialog,QWidget , form_class_movieInfo):
         def screenChangeToActorInfo(id):
             window_actorinfo = WindowClassActorInfo(id)
             window_actorinfo.exec_()
-        self.listWidget_actor.itemClicked.connect(lambda: screenChangeToActorInfo(db.getActIdWithActName(self.listWidget_actor.currentItem().text())))
+        self.listWidget_actor.itemClicked.connect(lambda: screenChangeToActorInfo(db.getActIdWithActName(self.listWidget_actor.currentItem().text())[0]['act_id']))
 ########################배우 데이터 처리#############################################################
 ########################감독 데이터 처리#############################################################
         director_id = db.getDirectorIdWithId(id)
-        director_name = db.getDirectorNameWithDirId(director_id['dir_id'])
-        self.listWidget_director.addItem(director_name['dir_name'])
-        def screenChangeToDirectorInfo(id):
-            window_directorinfo = WindowClassDirectorInfo(id)
-            window_directorinfo.exec_()
-        self.listWidget_director.itemClicked.connect(lambda:screenChangeToDirectorInfo(db.getDirIdwithDirName(self.listWidget_director.currentItem().text())['dir_id']))
+        if(db.getDirectorNameWithDirId(director_id['dir_id'])!=None):
+            director_name = db.getDirectorNameWithDirId(director_id['dir_id'])
+            self.listWidget_director.addItem(director_name['dir_name'])
+            def screenChangeToDirectorInfo(id):
+                window_directorinfo = WindowClassDirectorInfo(id)
+                window_directorinfo.exec_()
+            self.listWidget_director.itemClicked.connect(lambda:screenChangeToDirectorInfo(db.getDirIdwithDirName(self.listWidget_director.currentItem().text())[0]['dir_id']))
+        else:
+            director_name = ""
 ########################감독 데이터 처리#############################################################
         nation = db.getNationWithId(id)[0]['nation']
         self.textEdit_country.setText(nation)
@@ -149,7 +165,6 @@ class WindowClassActorInfo(QDialog,QWidget ,form_class_actorInfo):
         self.setupUi(self)
         self.show()
 
-        id = id[0]['act_id']
         act_data = db.getAllActDataWithId(id)
         print(act_data)
         self.textEdit_act_name.setText(act_data[0]['act_name'])
@@ -209,6 +224,21 @@ class WindowClassDirectorInfo(QDialog,QWidget ,form_class_directorInfo):
             self.textEdit_dir_profile.setText(dir_data[0]['dir_profile'])
         else:
             self.textEdit_dir_profile.setText("프로필 정보 없음")
+
+        dir_movieid_list = db.getMovieListWithDirId(id)
+        print(dir_movieid_list)
+
+        def screenChangeToMovieInfo(id):
+            window_movieinfo = WindowClassMovieInfo(id)
+            window_movieinfo.exec_()
+
+        for i in range(0, dir_movieid_list.__len__()):
+            movie = db.getTitleWithId(dir_movieid_list[i]['movie_id'])
+            print(movie)
+            movie = movie[0]['title']
+            self.listWidget_movieList.addItem(movie)
+        self.listWidget_movieList.itemClicked.connect(
+            lambda: screenChangeToMovieInfo(db.getidWithTitle(self.listWidget_movieList.currentItem().text())))
 
 form_class_imageInfo = uic.loadUiType("image_info.ui")[0]
 class WindowClassImageInfo(QDialog,QWidget ,form_class_imageInfo):

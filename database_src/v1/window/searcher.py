@@ -17,19 +17,21 @@ def search(menu, data):
     if menu == 2:
         actor_list = db.get_allActor()
         for i in range(0,actor_list.__len__()):
-            actor = actor_list[i][1]   #데이터베이스에서 title 가져와서
+            actor = actor_list[i][1]
             actor_id = actor_list[i][0]
             reg = QtCore.QRegExp(data)
             index = reg.indexIn(actor)
             if(index != -1):
                 search_data.append(actor_id)
     if menu == 3:
-        director = "temp"
-        movie_id = "0"
-        reg = QtCore.QRegExp(data)
-        index = reg.indexIn(director)
-        if (index != -1):
-            search_data.append(movie_id)
+        director_list = db.get_allDirector()
+        for i in range(0, director_list.__len__()):
+            director = director_list[i][1]
+            director_id = director_list[i][0]
+            reg = QtCore.QRegExp(data)
+            index = reg.indexIn(director)
+            if (index != -1):
+                search_data.append(director_id)
     if menu == 4:
         genre = "temp"
         movie_id = "0"
@@ -52,3 +54,4 @@ def search(menu, data):
         if (index != -1):
             search_data.append(movie_id)
     return search_data
+

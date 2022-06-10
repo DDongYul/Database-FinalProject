@@ -42,6 +42,20 @@ def get_allActor():
         r = cur1.fetchone()
     return actor_list
 
+def get_allDirector():
+    conn1, cur1 = open_db()
+    sql = """
+            select dir_id,dir_name
+            from director;
+            """
+    cur1.execute(sql)
+    director_list = []
+    r = cur1.fetchone()
+    while r:
+        director_list.append([r['dir_id'], r['dir_name']])
+        r = cur1.fetchone()
+    return director_list
+
 def getidWithTitle(title):      #영화 제목으로 id 받아옴
     conn1, cur1 = open_db()
     sql = """
@@ -51,7 +65,10 @@ def getidWithTitle(title):      #영화 제목으로 id 받아옴
     """.format(title)
     cur1.execute(sql)
     r = cur1.fetchone()
-    id = r['movie_id']
+    if(r!=None):
+        id = r['movie_id']
+    else:
+        id=0
     return id
 
 def getAllDataWithId(id):       #해당 영화에 나오는 데이터를 movie 테이블에서 전부 가쟈옴
@@ -109,12 +126,23 @@ def getAllActDataWithId(id):
     r = cur1.fetchall()
     return r
 
-def getMovieListWithActId(id):  #출연작
+def getMovieListWithActId(id):  #배우 출연작
     conn1, cur1 = open_db()
     sql = """
             select movie_id
             from movie_actor
             where act_id = '{0}';
+        """.format(id)
+    cur1.execute(sql)
+    r = cur1.fetchall()
+    return r
+
+def getMovieListWithDirId(id):  #출연작
+    conn1, cur1 = open_db()
+    sql = """
+            select movie_id
+            from movie_director
+            where dir_id = '{0}';
         """.format(id)
     cur1.execute(sql)
     r = cur1.fetchall()
@@ -156,13 +184,25 @@ def getDirectorNameWithDirId(id):
 def getDirIdwithDirName(name):
     conn1, cur1 = open_db()
     sql = """
-                        select dir_id
-                        from director
-                        where dir_name = '{0}';
-                        """.format(name)
+                select dir_id
+                from director
+                where dir_name = '{0}';
+                """.format(name)
     cur1.execute(sql)
-    r = cur1.fetchone()
+    r = cur1.fetchall()
     return r
+
+def getDirectorIdWithDirectorName(name):
+    conn1, cur1 = open_db()
+    sql = """
+                    select dir_id
+                    from director
+                    where dir_name = '{0}';
+                    """.format(name)
+    cur1.execute(sql)
+    r = cur1.fetchall()
+    id = r[0]['dir_id']
+    return id
 
 def getAllDirDataWithId(id):
     conn1, cur1 = open_db()
@@ -233,4 +273,5 @@ def print_Movie(id):
 #
 #     close_db(conn1,cur1)
 #     print(r)
+
 
