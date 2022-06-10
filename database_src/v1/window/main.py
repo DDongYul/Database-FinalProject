@@ -118,15 +118,18 @@ class WindowClassDirectorInfo(QDialog,QWidget ,form_class_directorInfo):
         self.show()
 
         dir_data = db.getAllDirDataWithId(id)
+        print(dir_data)
         self.textEdit_dir_name.setText(dir_data[0]['dir_name'])
         if(dir_data[0]['dir_birth']!=None):
             self.textEdit_dir_birth.setText("출생: " + dir_data[0]['dir_birth'])
         else:
             self.textEdit_dir_birth.setText("출생 정보 없음")
-        if (dir_data[0]['dir_birth'] != None):
-            self.textEdit_dir_rewards.setText("수상내역: " + dir_data[0]['dir_awards'])
+
+        if (dir_data[0]['dir_awards'] != None):
+            self.textEdit_dir_awards.setText("수상내역: " + dir_data[0]['dir_awards'])
         else:
-            self.textEdit_dir_rewards.setText("수상내역 정보 없음")
+            self.textEdit_dir_awards.setText("수상내역 정보 없음")
+
         if (dir_data[0]['dir_profile'] != None):
             self.textEdit_dir_profile.setText(dir_data[0]['dir_profile'])
         else:
