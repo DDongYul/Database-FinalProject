@@ -6,13 +6,14 @@ import pyperclip
 import time
 from bs4 import BeautifulSoup
 from selenium.common.exceptions import NoSuchElementException
-import random
 
 #하나의 영화에서 시작하여 연관된 영화를 계속 돌면서 데이터를 모으는 코드
+# 2- >2_2 배우/제작진 탭에서 감독에 대한 링크가 없을 경우 그냥 crawling x
 
-iter_num_of_movie = 500
-start_movie_url = 'https://movie.naver.com/movie/bi/mi/basic.naver?code=16523'
-already_exists = 0
+#장르 드라마 1 ~ 106
+iter_num_of_page = 15
+start_page_url = 'https://movie.naver.com/movie/sdb/browsing/bmovie.naver?genre=1&page=147'
+
 
 one_movie_inform_tuple_buf = ()
 one_movie_nation_tuples_buf = []
@@ -483,6 +484,11 @@ def crawling_one_movie(movie_id : str, driver : webdriver.Chrome,  conn : pymysq
                     try:
                         dir_obj_list = div_obj_section.select('div > div.dir_obj')
                         for dir_obj in dir_obj_list:
+                            
+                            #0610추가 director링크가 없는경우 즉 따로 웹페이지가 없는 경우
+                            if dir_obj.select_one('div > a') is None:
+                                continue
+                            
                             tmp_dir_id = url_to_id(dir_obj.select_one('div > a').attrs['href'])
                             one_movie_movie_dir_tuples_buf.append((movie_id, tmp_dir_id))
                     except Exception as e:
@@ -609,42 +615,44 @@ def close_db(conn : pymysql.Connection, cur : Cursor):
 
 
 def main():
-    global iter_num_of_movie
-    global start_movie_url
-    global already_exists
+    global iter_num_of_page
+    global start_page_url
     
     conn, cur = open_db()
     driver = webdriver.Chrome(executable_path='C:/Users/junsub/study/2022_1/database_final_project/database_src2/chromedriver.exe')
-    driver.get(start_movie_url)
+    driver.get(start_page_url)
     
     #로그인
     time.sleep(0.3)
     login(driver)
     
-    #현재 영화의 연관영화 탭에서 랜덤으로 하나 뽑아서 그 영화에 대한 메인 웹페이지로 들어간다.
-    for i in range(0, iter_num_of_movie):
-        cur.execute('select * from movie where movie_id = %s', (url_to_id(driver.current_url)))
-        if not cur.fetchone():
-            res = crawling_one_movie(url_to_id(driver.current_url), driver, conn, cur)
-            if res == 0:
-                sql_insert_query(url_to_id(driver.current_url), conn, cur)
-            else:
-                for window in reversed(driver.window_handles):
-                    driver.switch_to.window(window)
-                    if window == driver.window_handles[0]:
-                        break
-                    else:
-                        driver.close()
-        else:
-            already_exists += 1
+    for i in range(0, iter_num_of_page):
+        movie_link_list = driver.find_elements_by_css_selector('#old_content > ul > li > a')
+        for movie_link in movie_link_list:
+            cur.execute('select * from movie where movie_id = %s', url_to_id(movie_link.get_attribute('href')))
+            if not cur.fetchone():
+                movie_link.send_keys(Keys.CONTROL + '\n')
+                driver.switch_to.window(driver.window_handles[-1])
+                res = crawling_one_movie(url_to_id(driver.current_url), driver, conn, cur)
+                if res == 0:
+                    sql_insert_query(url_to_id(driver.current_url), conn, cur)
+                    driver.close()
+                    driver.switch_to.window(driver.window_handles[-1])
+                else :
+                    for window in reversed(driver.window_handles):
+                        driver.switch_to.window(window)
+                        if window == driver.window_handles[0]:
+                            break
+                        else:
+                            driver.close()            
+        if check_exists_by_css_select(driver, '#old_content > div.pagenavigation > table > tbody > tr > td.next > a'):
+            driver.find_element_by_css_selector('#old_content > div.pagenavigation > table > tbody > tr > td.next > a').click()
         
-        driver.find_elements_by_css_selector('#movieEndTabMenu > li > a')[-1].click()
-        movie_link_atag_list = driver.find_elements_by_css_selector('#content > div.article > div.section_group > div.obj_section.noline > div > ul > li > h5 > a')
-        random_index = random.randrange(0, len(movie_link_atag_list))
-        movie_link_atag_list[random_index].click()
+        print('--page into--')
+        print(driver.current_url.split('page=')[-1])
+        
+        
     
-    print('overlap ratio')
-    print(already_exists / iter_num_of_movie)
     driver.quit()
     close_db(conn,cur)
 

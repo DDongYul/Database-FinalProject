@@ -71,7 +71,7 @@ use naver_movie;
 --     dir_name char(30),
 --     dir_birth varchar(100),
 --     dir_awards varchar(100),
---     dir_profile varchar(5000),
+--     dir_profile varchar(10000),
 --     enter_date datetime default now(),
 --     
 --     primary key(dir_id)
@@ -91,7 +91,7 @@ use naver_movie;
 --     act_name char(30),
 --     act_birth varchar(100),
 --     act_awards varchar(100),
---     act_profile varchar(5000),
+--     act_profile varchar(10000),
 --     enter_date datetime default now(),
 --     
 --     primary key(act_id)
@@ -118,6 +118,8 @@ use naver_movie;
 -- alter table exception_table modify _where varchar(100);
 -- alter table movie_act rename movie_actor;
 -- alter table movie_dir rename movie_director;
+-- alter table director modify dir_profile varchar(10000);
+-- alter table actor modify act_profile varchar(10000);
 
 
 
@@ -142,6 +144,9 @@ use naver_movie;
 
 -- delete from exception_table where movie_id = 31170;
 -- delete from movie where movie_id = 50869;
+
+-- delete from movie where movie_id = 39918;
+-- delete from movie where movie_id = 16523;
  set sql_safe_updates = 0;
  set sql_safe_updates = 1;
 
@@ -151,20 +156,23 @@ select * from exception_table order by enter_date desc;
 
 select * from movie order by enter_date desc;
 select * from actor order by enter_date desc;
+select * from director order by enter_date desc;
 select count(*) from actor;
 select count(*) from movie;
 select count(*) from director;
 select count(*) from exception_table;
 
-select * from movie_netizen_review where movie_id = 31170;
-select * from movie_nation where movie_id = 31170;
-select * from movie_journal_review where movie_id = 31170;
-select * from movie_genre where movie_id = 31170;
-select * from movie_dir where movie_id = 31170;
-select * from movie_act where movie_id = 31170;
-select * from movie where movie_id = 31170;
+select * from movie_netizen_review where movie_id = 39918;
+select * from movie_nation where movie_id = 39918;
+select * from movie_journal_review where movie_id = 39918;
+select * from movie_genre where movie_id = 39918;
+select * from movie_director where movie_id = 39918;
+select * from movie_photo where movie_id = 39918;
+select count(*) from movie_photo where movie_id = 30776;
+select * from movie_actor where movie_id = 39918;
+select * from movie where movie_id = 39918;
 select * from actor where act_id = 33374;
-select * from director where dir_id = 1092;
+select * from director where dir_id = 26719;
 
 select * from movie order by enter_date desc;
 select * from actor order by enter_date desc;
@@ -196,7 +204,6 @@ select * from movie where title = '너는 내 운명';
 
 select * from actor;
 select * from movie;
-
 
 
 create table test_ex_many(
