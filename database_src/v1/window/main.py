@@ -3,6 +3,8 @@ import searcher
 import database as db
 from PyQt5.QtWidgets import *
 from PyQt5 import uic
+from PyQt5.QtGui import *
+import urllib.request
 from PyQt5 import QtCore,QtWidgets
 
 form_class = uic.loadUiType("mainActivity.ui")[0]
@@ -74,8 +76,12 @@ class WindowClassMovieInfo(QDialog,QWidget , form_class_movieInfo):
             actor_list2.append(actor_list[i][0]['act_name'])        #['임창정', '하지원', '주현'] 형식
         for i in range(0,actor_list2.__len__()):
             self.listWidget_actor.addItem(actor_list2[i])
+        def screenChangeToActorInfo(id):
+            window_actorinfo = WindowClassActorInfo(id)
+            window_actorinfo.exec_()
+        self.listWidget_actor.itemClicked.connect(lambda: screenChangeToActorInfo(db.getActIdWithActName(self.listWidget_actor.currentItem().text())))
 ########################배우 데이터 처리#############################################################
-
+########################감독 데이터 처리#############################################################
         director_id = db.getDirectorIdWithId(id)
         director_name = db.getDirectorNameWithDirId(director_id['dir_id'])
         self.listWidget_director.addItem(director_name['dir_name'])
@@ -83,9 +89,29 @@ class WindowClassMovieInfo(QDialog,QWidget , form_class_movieInfo):
             window_directorinfo = WindowClassDirectorInfo(id)
             window_directorinfo.exec_()
         self.listWidget_director.itemClicked.connect(lambda:screenChangeToDirectorInfo(db.getDirIdwithDirName(self.listWidget_director.currentItem().text())['dir_id']))
+########################감독 데이터 처리#############################################################
+        nation = db.getNationWithId(id)[0]['nation']
+        self.textEdit_country.setText(nation)
 
+        genre = ""
+        genre_list = db.getGenreWithId(id)
+        print(genre_list)
+        for i in range(0,genre_list.__len__()-1):
+            genre+=genre_list[i]['genre']
+            genre+= ","
+        genre += genre_list[genre_list.__len__()-1]['genre']
+        self.textEdit_genre.setText(genre)
 
-
+        qPixmapvar = QPixmap()
+        url_list = db.getImgUrlWithId(id)
+        url = url_list[0]['photo_link']
+        urlOpen = urllib.request.urlopen(url).read()
+        qPixmapvar.loadFromData(urlOpen)
+        self.label_img.setPixmap(qPixmapvar)
+        def screenChangeToImageInfo(id):
+            window_imageinfo = WindowClassImageInfo(id)
+            window_imageinfo.exec_()
+        self.pushButton_image.clicked.connect(lambda: screenChangeToImageInfo(id))
 
         self.textEdit_title.setText(data[0]['title'])
         self.textEdit_audienceRate.setText(str(data[0]['netizen_score']))
@@ -93,6 +119,9 @@ class WindowClassMovieInfo(QDialog,QWidget , form_class_movieInfo):
         self.textEdit_playTime.setText("상영시간: " + str(data[0]['playtime'])+"분")
         self.textEdit_openingDate.setText("개봉: " + str(data[0]['open_date']))
         self.textEdit_rate.setText(str(data[0]['movie_rate']))
+        self.textEdit_story.setText(data[0]['story'])
+        self.textEdit_exp_score.setText(str(data[0]['exp_score']))
+        self.textEdit_non_exp_score.setText(str(data[0]['non_exp_score']))
 
         def actor_click(event):
             self.window_actorinfo = WindowClassActorInfo()
@@ -110,6 +139,25 @@ class WindowClassActorInfo(QDialog,QWidget ,form_class_actorInfo):
         self.setupUi(self)
         self.show()
 
+        id = id[0]['act_id']
+        act_data = db.getAllActDataWithId(id)
+        print(act_data)
+        self.textEdit_act_name.setText(act_data[0]['act_name'])
+        if (act_data[0]['act_birth'] != None):
+            self.textEdit_act_birth.setText(act_data[0]['act_birth'])
+        else:
+            self.textEdit_act_birth.setText("출생 정보 없음")
+
+        if (act_data[0]['act_awards'] != None):
+            self.textEdit_act_awards.setText(act_data[0]['act_awards'])
+        else:
+            self.textEdit_act_awards.setText("수상내역 정보 없음")
+
+        if (act_data[0]['act_profile'] != None):
+            self.textEdit_act_profile.setText(act_data[0]['act_profile'])
+        else:
+            self.textEdit_act_profile.setText("프로필 정보 없음")
+
 form_class_directorInfo = uic.loadUiType("director_info.ui")[0]
 class WindowClassDirectorInfo(QDialog,QWidget ,form_class_directorInfo):
     def __init__(self,id):
@@ -121,12 +169,12 @@ class WindowClassDirectorInfo(QDialog,QWidget ,form_class_directorInfo):
         print(dir_data)
         self.textEdit_dir_name.setText(dir_data[0]['dir_name'])
         if(dir_data[0]['dir_birth']!=None):
-            self.textEdit_dir_birth.setText("출생: " + dir_data[0]['dir_birth'])
+            self.textEdit_dir_birth.setText(dir_data[0]['dir_birth'])
         else:
             self.textEdit_dir_birth.setText("출생 정보 없음")
 
         if (dir_data[0]['dir_awards'] != None):
-            self.textEdit_dir_awards.setText("수상내역: " + dir_data[0]['dir_awards'])
+            self.textEdit_dir_awards.setText(dir_data[0]['dir_awards'])
         else:
             self.textEdit_dir_awards.setText("수상내역 정보 없음")
 
@@ -134,6 +182,39 @@ class WindowClassDirectorInfo(QDialog,QWidget ,form_class_directorInfo):
             self.textEdit_dir_profile.setText(dir_data[0]['dir_profile'])
         else:
             self.textEdit_dir_profile.setText("프로필 정보 없음")
+
+form_class_imageInfo = uic.loadUiType("image_info.ui")[0]
+class WindowClassImageInfo(QDialog,QWidget ,form_class_imageInfo):
+    def __init__(self,id):
+        super().__init__()
+        self.setupUi(self)
+        self.show()
+
+        qPixmapvar = QPixmap()
+        url_list = db.getImgUrlWithId(id)
+        url = url_list[1]['photo_link']
+        urlOpen = urllib.request.urlopen(url).read()
+        qPixmapvar.loadFromData(urlOpen)
+        self.label_img_1.setPixmap(qPixmapvar)
+
+        url_list = db.getImgUrlWithId(id)
+        url = url_list[2]['photo_link']
+        urlOpen = urllib.request.urlopen(url).read()
+        qPixmapvar.loadFromData(urlOpen)
+        self.label_img_2.setPixmap(qPixmapvar)
+
+        url_list = db.getImgUrlWithId(id)
+        url = url_list[3]['photo_link']
+        urlOpen = urllib.request.urlopen(url).read()
+        qPixmapvar.loadFromData(urlOpen)
+        self.label_img_3.setPixmap(qPixmapvar)
+
+        url_list = db.getImgUrlWithId(id)
+        url = url_list[4]['photo_link']
+        urlOpen = urllib.request.urlopen(url).read()
+        qPixmapvar.loadFromData(urlOpen)
+        self.label_img_4.setPixmap(qPixmapvar)
+
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)

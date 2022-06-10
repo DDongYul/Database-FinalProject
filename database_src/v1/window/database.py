@@ -73,6 +73,28 @@ def getActorNameWithActId(id):  #act_id에 해당하는 배우의 이름 조회
     r = cur1.fetchall()
     return r
 
+def getActIdWithActName(name):
+    conn1, cur1 = open_db()
+    sql = """
+                    select act_id
+                    from actor
+                    where act_name = '{0}';
+                    """.format(name)
+    cur1.execute(sql)
+    r = cur1.fetchall()
+    return r
+
+def getAllActDataWithId(id):
+    conn1, cur1 = open_db()
+    sql = """
+           select *
+          from actor
+          where act_id = '{0}';
+        """.format(id)
+    cur1.execute(sql)
+    r = cur1.fetchall()
+    return r
+
 def getDirectorIdWithId(id):    #해당 영화에 출연하는 감독의 dir_id를 가져옴
     conn1, cur1 = open_db()
     sql = """
@@ -109,13 +131,47 @@ def getDirIdwithDirName(name):
 def getAllDirDataWithId(id):
     conn1, cur1 = open_db()
     sql = """
-                        select *
-                        from director
-                        where dir_id = '{0}';
-                        """.format(id)
+            select *
+            from director
+            where dir_id = '{0}';
+                """.format(id)
     cur1.execute(sql)
     r = cur1.fetchall()
     return r
+
+def getNationWithId(id):
+    conn1, cur1 = open_db()
+    sql = """
+            select nation
+            from movie_nation
+            where movie_id = '{0}';
+        """.format(id)
+    cur1.execute(sql)
+    r = cur1.fetchall()
+    return r
+
+def getGenreWithId(id):
+    conn1, cur1 = open_db()
+    sql = """
+           select genre
+           from movie_genre
+           where movie_id = '{0}';
+       """.format(id)
+    cur1.execute(sql)
+    r = cur1.fetchall()
+    return r
+
+def getImgUrlWithId(id):
+    conn1, cur1 = open_db()
+    sql = """
+           select photo_link
+           from movie_photo
+           where movie_id = '{0}';
+       """.format(id)
+    cur1.execute(sql)
+    r = cur1.fetchall()
+    return r
+
 
 def print_Movie(id):
     conn1, cur1 = open_db()
