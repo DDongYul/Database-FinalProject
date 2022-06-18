@@ -18,6 +18,15 @@ class WindowClass(QMainWindow,form_class ):
         self.sortActorButton.clicked.connect(self.sortActorButtonClick)
         self.sortDirectorButton.clicked.connect(self.sortDirectorButtonClick)
 
+        self.listWidget.itemClicked.connect(
+            lambda: self.screenChangeToMovieInfo(db.getidWithTitle(self.listWidget.currentItem().text())))
+
+        self.listWidget2.itemClicked.connect(lambda: self.screenChangeToActorInfo(
+            db.getActIdWithActName(self.listWidget2.currentItem().text())[0]['act_id']))
+
+        self.listWidget3.itemClicked.connect(
+            lambda: self.screenChangeToDirectorInfo(db.getDirectorIdWithDirectorName(self.listWidget3.currentItem().text())))
+
     def screenChangeToMovieInfo(self,id):
         self.window_movieinfo = WindowClassMovieInfo(id)
         self.window_movieinfo.exec_()
@@ -40,7 +49,7 @@ class WindowClass(QMainWindow,form_class ):
             count = self.listWidget.count()
             for i in range(0,count):
                 data.append(self.listWidget.item(i).text())
-            data.sort()
+            data.sort(reverse=True)
             self.listWidget.clear()
             for i in range(0,count):
                 self.listWidget.addItem(data[i])
@@ -49,7 +58,7 @@ class WindowClass(QMainWindow,form_class ):
         count = self.listWidget2.count()
         for i in range(0, count):
             data.append(self.listWidget2.item(i).text())
-        data.sort()
+        data.sort(reverse=True)
         self.listWidget2.clear()
         for i in range(0, count):
             self.listWidget2.addItem(data[i])
@@ -58,7 +67,7 @@ class WindowClass(QMainWindow,form_class ):
         count = self.listWidget3.count()
         for i in range(0, count):
             data.append(self.listWidget3.item(i).text())
-        data.sort()
+        data.sort(reverse=True)
         self.listWidget3.clear()
         for i in range(0, count):
             self.listWidget3.addItem(data[i])
@@ -71,7 +80,7 @@ class WindowClass(QMainWindow,form_class ):
             for i in range(0,searchdata.__len__()):
                 data = db.print_Search_Movie(searchdata[i])
                 self.listWidget.addItem(data[0]['title'])
-            self.listWidget.itemClicked.connect(lambda: self.screenChangeToMovieInfo(db.getidWithTitle(self.listWidget.currentItem().text())))
+            # self.listWidget.itemClicked.connect(lambda: self.screenChangeToMovieInfo(db.getidWithTitle(self.listWidget.currentItem().text())))
 
         elif self.radioButtonActor.isChecked() :
             self.listWidget2.clear()
@@ -80,7 +89,7 @@ class WindowClass(QMainWindow,form_class ):
             for i in range(0,searchdata.__len__()):
                 data = db.getAllActDataWithId(searchdata[i])
                 self.listWidget2.addItem(data[0]['act_name'])
-            self.listWidget2.itemClicked.connect(lambda: self.screenChangeToActorInfo(db.getActIdWithActName(self.listWidget2.currentItem().text())[0]['act_id']))
+            # self.listWidget2.itemClicked.connect(lambda: self.screenChangeToActorInfo(db.getActIdWithActName(self.listWidget2.currentItem().text())[0]['act_id']))
 
         elif self.radioButtonDirector.isChecked() :
             self.listWidget3.clear()
@@ -89,8 +98,8 @@ class WindowClass(QMainWindow,form_class ):
             for i in range(0, searchdata.__len__()):
                 data = db.getAllDirDataWithId(searchdata[i])
                 self.listWidget3.addItem(data[0]['dir_name'])
-            self.listWidget3.itemClicked.connect(
-                lambda: self.screenChangeToDirectorInfo(db.getDirectorIdWithDirectorName(self.listWidget3.currentItem().text())))
+            # self.listWidget3.itemClicked.connect(
+            #     lambda: self.screenChangeToDirectorInfo(db.getDirectorIdWithDirectorName(self.listWidget3.currentItem().text())))
         #
         # elif self.radioButtonGenre.isChecked() :
         #     searcher.search(4, self.lineEdit.text())
@@ -125,7 +134,8 @@ class WindowClassMovieInfo(QDialog,QWidget , form_class_movieInfo):
 ########################배우 데이터 처리#############################################################
 ########################감독 데이터 처리#############################################################
         director_id = db.getDirectorIdWithId(id)
-        if(db.getDirectorNameWithDirId(director_id['dir_id'])!=None):
+        # if(db.getDirectorNameWithDirId(director_id['dir_id'])!=None):
+        if(director_id):
             director_name = db.getDirectorNameWithDirId(director_id['dir_id'])
             self.listWidget_director.addItem(director_name['dir_name'])
             def screenChangeToDirectorInfo(id):
@@ -149,9 +159,11 @@ class WindowClassMovieInfo(QDialog,QWidget , form_class_movieInfo):
 
         qPixmapvar = QPixmap()
         url_list = db.getImgUrlWithId(id)
-        url = url_list[0]['photo_link']
-        urlOpen = urllib.request.urlopen(url).read()
-        qPixmapvar.loadFromData(urlOpen)
+        print(url_list)
+        if(url_list):
+            url = url_list[0]['photo_link']
+            urlOpen = urllib.request.urlopen(url).read()
+            qPixmapvar.loadFromData(urlOpen)
         self.label_img.setPixmap(qPixmapvar)
         def screenChangeToImageInfo(id):
             window_imageinfo = WindowClassImageInfo(id)
@@ -268,29 +280,31 @@ class WindowClassImageInfo(QDialog,QWidget ,form_class_imageInfo):
 
         qPixmapvar = QPixmap()
         url_list = db.getImgUrlWithId(id)
-        url = url_list[1]['photo_link']
-        urlOpen = urllib.request.urlopen(url).read()
-        qPixmapvar.loadFromData(urlOpen)
-        self.label_img_1.setPixmap(qPixmapvar)
+        if(url_list.__len__()>=4):
+            url = url_list[1]['photo_link']
+            urlOpen = urllib.request.urlopen(url).read()
+            qPixmapvar.loadFromData(urlOpen)
+            self.label_img_1.setPixmap(qPixmapvar)
 
-        url_list = db.getImgUrlWithId(id)
-        url = url_list[2]['photo_link']
-        urlOpen = urllib.request.urlopen(url).read()
-        qPixmapvar.loadFromData(urlOpen)
-        self.label_img_2.setPixmap(qPixmapvar)
+            url_list = db.getImgUrlWithId(id)
+            url = url_list[2]['photo_link']
+            urlOpen = urllib.request.urlopen(url).read()
+            qPixmapvar.loadFromData(urlOpen)
+            self.label_img_2.setPixmap(qPixmapvar)
 
-        url_list = db.getImgUrlWithId(id)
-        url = url_list[3]['photo_link']
-        urlOpen = urllib.request.urlopen(url).read()
-        qPixmapvar.loadFromData(urlOpen)
-        self.label_img_3.setPixmap(qPixmapvar)
+            url_list = db.getImgUrlWithId(id)
+            url = url_list[3]['photo_link']
+            urlOpen = urllib.request.urlopen(url).read()
+            qPixmapvar.loadFromData(urlOpen)
+            self.label_img_3.setPixmap(qPixmapvar)
 
-        url_list = db.getImgUrlWithId(id)
-        url = url_list[4]['photo_link']
-        urlOpen = urllib.request.urlopen(url).read()
-        qPixmapvar.loadFromData(urlOpen)
-        self.label_img_4.setPixmap(qPixmapvar)
-
+            url_list = db.getImgUrlWithId(id)
+            url = url_list[4]['photo_link']
+            urlOpen = urllib.request.urlopen(url).read()
+            qPixmapvar.loadFromData(urlOpen)
+            self.label_img_4.setPixmap(qPixmapvar)
+        else:
+            print("exception")
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
