@@ -11,7 +11,7 @@ from selenium.common.exceptions import NoSuchElementException
 
 #장르 드라마
 iter_num_of_page = 40
-movie_url = 'https://movie.naver.com/movie/bi/mi/basic.naver?code=16523'
+movie_url = 'https://movie.naver.com/movie/bi/mi/basic.naver?code=117528'
 #11
 
 one_movie_inform_tuple_buf = ()
@@ -630,9 +630,11 @@ def main():
     time.sleep(0.3)
     login(driver)
     
-    res = crawling_one_movie(url_to_id(movie_url), driver, conn, cur)
-    if res == 0:
-        sql_insert_query(url_to_id(movie_url), conn, cur)
+    cur.execute('select * from movie where movie_id = %s;', url_to_id(movie_url))
+    if not cur.fetchone():
+        res = crawling_one_movie(url_to_id(movie_url), driver, conn, cur)
+        if res == 0:
+            sql_insert_query(url_to_id(movie_url), conn, cur)
         
         
     

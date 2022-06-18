@@ -10,12 +10,25 @@ from selenium.common.exceptions import NoSuchElementException
 #하나의 영화에서 시작하여 연관된 영화를 계속 돌면서 데이터를 모으는 코드
 # 2- >2_2 배우/제작진 탭에서 감독에 대한 링크가 없을 경우 그냥 crawling x
 
-#장르 드라마 1 ~ 106
-iter_num_of_page = 15
-start_page_url = 'https://movie.naver.com/movie/sdb/browsing/bmovie.naver?genre=1&page=147'
+#장르 드라마 1 ~ 250
+# iter_num_of_page = 15
+# start_page_url = 'https://movie.naver.com/movie/sdb/browsing/bmovie.naver?genre=1&page=251'
 
+#80~159
+# iter_num_of_page = 30
+# start_page_url = 'https://movie.naver.com/movie/sdb/browsing/bmovie.naver?genre=15&page=160'
 
+#SF 5~44
+# iter_num_of_page = 40
+# start_page_url = 'https://movie.naver.com/movie/sdb/browsing/bmovie.naver?genre=18&page=45'
+
+#액션 40~96
+iter_num_of_page = 25
+start_page_url = 'https://movie.naver.com/movie/sdb/browsing/bmovie.naver?genre=19&page=97'
+
+#one tuple
 one_movie_inform_tuple_buf = ()
+#set of tuples
 one_movie_nation_tuples_buf = []
 one_movie_genre_tuples_buf = []
 one_movie_photo_tuples_buf = []

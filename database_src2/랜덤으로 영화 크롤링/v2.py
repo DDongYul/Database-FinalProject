@@ -10,8 +10,8 @@ import random
 
 #하나의 영화에서 시작하여 연관된 영화를 계속 돌면서 데이터를 모으는 코드
 
-iter_num_of_movie = 500
-start_movie_url = 'https://movie.naver.com/movie/bi/mi/basic.naver?code=16523'
+iter_num_of_movie = 1000
+start_movie_url = 'https://movie.naver.com/movie/bi/mi/basic.naver?code=135806'
 already_exists = 0
 
 one_movie_inform_tuple_buf = ()
@@ -483,6 +483,11 @@ def crawling_one_movie(movie_id : str, driver : webdriver.Chrome,  conn : pymysq
                     try:
                         dir_obj_list = div_obj_section.select('div > div.dir_obj')
                         for dir_obj in dir_obj_list:
+                            
+                            #0610추가 director링크가 없는경우 즉 따로 웹페이지가 없는 경우
+                            if dir_obj.select_one('div > a') is None:
+                                continue
+                            
                             tmp_dir_id = url_to_id(dir_obj.select_one('div > a').attrs['href'])
                             one_movie_movie_dir_tuples_buf.append((movie_id, tmp_dir_id))
                     except Exception as e:
