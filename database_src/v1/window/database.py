@@ -248,8 +248,8 @@ def getImgUrlWithId(id):
     r = cur1.fetchall()
     return r
 
-
-def print_Movie(id):
+#검색결과 반환
+def print_Search_Movie(id):
     conn1, cur1 = open_db()
     sql = """
             select *

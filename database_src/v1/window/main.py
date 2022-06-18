@@ -13,11 +13,10 @@ class WindowClass(QMainWindow,form_class ):
         super().__init__()
         self.setupUi(self)
 
-
         self.searchButton.clicked.connect(self.groupboxRadFunction)
         self.sortNameButton.clicked.connect(self.sortNameButtonClick)
-        self.sortYearButton.clicked.connect(self.sortYearButtonClick)
-        self.sortRateButton.clicked.connect(self.sortRateButtonClick)
+        self.sortActorButton.clicked.connect(self.sortActorButtonClick)
+        self.sortDirectorButton.clicked.connect(self.sortDirectorButtonClick)
 
     def screenChangeToMovieInfo(self,id):
         self.window_movieinfo = WindowClassMovieInfo(id)
@@ -37,11 +36,32 @@ class WindowClass(QMainWindow,form_class ):
 
     #정렬 버튼 클릭시 실행할 함수
     def sortNameButtonClick(self):
-        print("sortName button clicked")
-    def sortYearButtonClick(self):
-        print("sortYear button clicked")
-    def sortRateButtonClick(self):
-        print("sortName button clicked")
+            data = []
+            count = self.listWidget.count()
+            for i in range(0,count):
+                data.append(self.listWidget.item(i).text())
+            data.sort()
+            self.listWidget.clear()
+            for i in range(0,count):
+                self.listWidget.addItem(data[i])
+    def sortActorButtonClick(self):
+        data = []
+        count = self.listWidget2.count()
+        for i in range(0, count):
+            data.append(self.listWidget2.item(i).text())
+        data.sort()
+        self.listWidget2.clear()
+        for i in range(0, count):
+            self.listWidget2.addItem(data[i])
+    def sortDirectorButtonClick(self):
+        data = []
+        count = self.listWidget3.count()
+        for i in range(0, count):
+            data.append(self.listWidget3.item(i).text())
+        data.sort()
+        self.listWidget3.clear()
+        for i in range(0, count):
+            self.listWidget3.addItem(data[i])
 
     # 레디오버튼 상태에 따라 검색함수 바뀌게
     def groupboxRadFunction(self) :
@@ -49,7 +69,7 @@ class WindowClass(QMainWindow,form_class ):
             self.listWidget.clear()
             searchdata = searcher.search(1, self.lineEdit.text())
             for i in range(0,searchdata.__len__()):
-                data = db.print_Movie(searchdata[i])
+                data = db.print_Search_Movie(searchdata[i])
                 self.listWidget.addItem(data[0]['title'])
             self.listWidget.itemClicked.connect(lambda: self.screenChangeToMovieInfo(db.getidWithTitle(self.listWidget.currentItem().text())))
 

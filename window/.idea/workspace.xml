@@ -1,7 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="cf69c1d2-43bc-4abf-91a5-506ad301d9cd" name="Changes" comment="제목으로 검색기능 구현, 상세정보화면 데이터 연결(진행중)" />
+    <list default="true" id="cf69c1d2-43bc-4abf-91a5-506ad301d9cd" name="Changes" comment="대략적인 UI , 함수들 틀 구현">
+      <change afterPath="$PROJECT_DIR$/../database_src/v1/window/searcher.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../database_src/v1/window/sorter.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../database_src/v1/mainActivity.ui" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../database_src/v1/subActivity.ui" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../database_src/v1/window/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/../database_src/v1/window/main.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../database_src/v1/window/subActivity.ui" beforeDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -15,7 +22,7 @@
     </option>
   </component>
   <component name="Git.Settings">
-    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/../../.." />
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/.." />
   </component>
   <component name="MarkdownSettingsMigration">
     <option name="stateVersion" value="1" />
@@ -26,14 +33,14 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;last_opened_file_path&quot;: &quot;/Users/dongyullee/Database-FinalProject/window&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;Errors&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "RunOnceActivity.OpenProjectViewOnStart": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "last_opened_file_path": "/Users/dongyullee/Database-FinalProject/window",
+    "settings.editor.selected.configurable": "project.propVCSSupport.DirectoryMappings"
   }
-}</component>
+}]]></component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
       <recent name="$PROJECT_DIR$" />
