@@ -121,8 +121,12 @@ use naver_movie;
 -- alter table director modify dir_profile varchar(10000);
 -- alter table actor modify act_profile varchar(10000);
 
+create index movie_title on movie(title);
+create index director_dir_name on director(dir_name);
+create index actor_act_name on actor(act_name);
 
-
+select * from movie where title = '시네마 천국';
+select * from movie where netizen_count >= 100 order by netizen_score desc;
 
 
 
@@ -151,7 +155,7 @@ use naver_movie;
  set sql_safe_updates = 1;
 
 
-
+use naver_movie;
 select * from exception_table order by enter_date desc;
 
 select * from movie order by enter_date desc;
@@ -162,12 +166,12 @@ select count(*) from movie;
 select count(*) from director;
 select count(*) from exception_table;
 
-select * from movie_netizen_review where movie_id = 39918;
+select * from movie_netizen_review where movie_id = 101901good_score_list;
 select * from movie_nation where movie_id = 39918;
-select * from movie_journal_review where movie_id = 39918;
+select * from movie_journal_review where movie_id = 101901;
 select * from movie_genre where movie_id = 39918;
 select * from movie_director where movie_id = 39918;
-select * from movie_photo where movie_id = 39918;
+select * from movie_photo where movie_id = 101901;
 select count(*) from movie_photo where movie_id = 30776;
 select * from movie_actor where movie_id = 39918;
 select * from movie where movie_id = 39918;
@@ -182,13 +186,18 @@ select * from actor where act_id = 22642;
 select * from movie_act where act_id = 1824;
 select * from movie where movie_id = 146469;
 select * from movie_photo;
-select * from movie where title like '탑건%';
+select * from movie where title like '미션%';
 select * from movie_act where movie_id = 10100;
 select * from actor where act_id = 1558;
 select * from movie where movie_id = 50869;
 select * from movie_photo where movie_id = 50869;
 select * from movie_nation where movie_id = 50869;
+select * from movie order by netizen_count desc;
+select * from movie m where not exists(select 1 from movie_director d where d.movie_id = m.movie_id); 
+select * from movie m where not exists(select 1 from movie_actor a where a.movie_id = m.movie_id);
 
+select * from movie where movie_id in (select movie_id from movie_director where dir_id = (select dir_id from director where dir_name = ''));
+select * from movie where movie_id = 101722;
 
 select count(*) from movie_actor where movie_id = 191613;
 select * from movie_actor where movie_id = 171539;
@@ -204,7 +213,6 @@ select * from movie where title = '너는 내 운명';
 
 select * from actor;
 select * from movie;
-
 
 create table test_ex_many(
 	id int unsigned
