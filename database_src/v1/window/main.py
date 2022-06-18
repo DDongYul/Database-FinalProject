@@ -13,12 +13,10 @@ class WindowClass(QMainWindow,form_class ):
         super().__init__()
         self.setupUi(self)
 
-
         self.searchButton.clicked.connect(self.groupboxRadFunction)
         self.sortNameButton.clicked.connect(self.sortNameButtonClick)
-        self.sortYearButton.clicked.connect(self.sortYearButtonClick)
-        self.sortRateButton.clicked.connect(self.sortRateButtonClick)
-        self.tempButton.clicked.connect(self.screenChangeToMovieInfo)
+        self.sortActorButton.clicked.connect(self.sortActorButtonClick)
+        self.sortDirectorButton.clicked.connect(self.sortDirectorButtonClick)
 
     def screenChangeToMovieInfo(self,id):
         self.window_movieinfo = WindowClassMovieInfo(id)
@@ -38,11 +36,32 @@ class WindowClass(QMainWindow,form_class ):
 
     #정렬 버튼 클릭시 실행할 함수
     def sortNameButtonClick(self):
-        print("sortName button clicked")
-    def sortYearButtonClick(self):
-        print("sortYear button clicked")
-    def sortRateButtonClick(self):
-        print("sortName button clicked")
+            data = []
+            count = self.listWidget.count()
+            for i in range(0,count):
+                data.append(self.listWidget.item(i).text())
+            data.sort()
+            self.listWidget.clear()
+            for i in range(0,count):
+                self.listWidget.addItem(data[i])
+    def sortActorButtonClick(self):
+        data = []
+        count = self.listWidget2.count()
+        for i in range(0, count):
+            data.append(self.listWidget2.item(i).text())
+        data.sort()
+        self.listWidget2.clear()
+        for i in range(0, count):
+            self.listWidget2.addItem(data[i])
+    def sortDirectorButtonClick(self):
+        data = []
+        count = self.listWidget3.count()
+        for i in range(0, count):
+            data.append(self.listWidget3.item(i).text())
+        data.sort()
+        self.listWidget3.clear()
+        for i in range(0, count):
+            self.listWidget3.addItem(data[i])
 
     # 레디오버튼 상태에 따라 검색함수 바뀌게
     def groupboxRadFunction(self) :
@@ -50,35 +69,35 @@ class WindowClass(QMainWindow,form_class ):
             self.listWidget.clear()
             searchdata = searcher.search(1, self.lineEdit.text())
             for i in range(0,searchdata.__len__()):
-                data = db.print_Movie(searchdata[i])
+                data = db.print_Search_Movie(searchdata[i])
                 self.listWidget.addItem(data[0]['title'])
             self.listWidget.itemClicked.connect(lambda: self.screenChangeToMovieInfo(db.getidWithTitle(self.listWidget.currentItem().text())))
 
         elif self.radioButtonActor.isChecked() :
-            self.listWidget.clear()
+            self.listWidget2.clear()
             searchdata = searcher.search(2, self.lineEdit.text())
             print(searchdata)
             for i in range(0,searchdata.__len__()):
                 data = db.getAllActDataWithId(searchdata[i])
-                self.listWidget.addItem(data[0]['act_name'])
-            self.listWidget.itemClicked.connect(lambda: self.screenChangeToActorInfo(db.getActIdWithActName(self.listWidget.currentItem().text())[0]['act_id']))
+                self.listWidget2.addItem(data[0]['act_name'])
+            self.listWidget2.itemClicked.connect(lambda: self.screenChangeToActorInfo(db.getActIdWithActName(self.listWidget2.currentItem().text())[0]['act_id']))
 
         elif self.radioButtonDirector.isChecked() :
-            self.listWidget.clear()
+            self.listWidget3.clear()
             searchdata = searcher.search(3, self.lineEdit.text())
             print(searchdata)
             for i in range(0, searchdata.__len__()):
                 data = db.getAllDirDataWithId(searchdata[i])
-                self.listWidget.addItem(data[0]['dir_name'])
-            self.listWidget.itemClicked.connect(
-                lambda: self.screenChangeToDirectorInfo(db.getDirectorIdWithDirectorName(self.listWidget.currentItem().text())))
-
-        elif self.radioButtonGenre.isChecked() :
-            searcher.search(4, self.lineEdit.text())
-        elif self.radioButtonYear.isChecked():
-            searcher.search(5, self.lineEdit.text())
-        elif self.radioButtonCountry.isChecked():
-            searcher.search(6, self.lineEdit.text())
+                self.listWidget3.addItem(data[0]['dir_name'])
+            self.listWidget3.itemClicked.connect(
+                lambda: self.screenChangeToDirectorInfo(db.getDirectorIdWithDirectorName(self.listWidget3.currentItem().text())))
+        #
+        # elif self.radioButtonGenre.isChecked() :
+        #     searcher.search(4, self.lineEdit.text())
+        # elif self.radioButtonYear.isChecked():
+        #     searcher.search(5, self.lineEdit.text())
+        # elif self.radioButtonCountry.isChecked():
+        #     searcher.search(6, self.lineEdit.text())
 
 #영화 상세정보 화면
 form_class_movieInfo = uic.loadUiType("movie_info.ui")[0]

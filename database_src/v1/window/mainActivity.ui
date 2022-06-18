@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>640</width>
+    <width>720</width>
     <height>480</height>
    </rect>
   </property>
@@ -16,8 +16,8 @@
   <widget class="QRadioButton" name="radioButtonTitle">
    <property name="geometry">
     <rect>
-     <x>136</x>
-     <y>53</y>
+     <x>170</x>
+     <y>50</y>
      <width>60</width>
      <height>30</height>
     </rect>
@@ -29,8 +29,8 @@
   <widget class="QRadioButton" name="radioButtonActor">
    <property name="geometry">
     <rect>
-     <x>186</x>
-     <y>53</y>
+     <x>240</x>
+     <y>50</y>
      <width>60</width>
      <height>30</height>
     </rect>
@@ -42,53 +42,14 @@
   <widget class="QRadioButton" name="radioButtonDirector">
    <property name="geometry">
     <rect>
-     <x>236</x>
-     <y>53</y>
+     <x>300</x>
+     <y>50</y>
      <width>60</width>
      <height>30</height>
     </rect>
    </property>
    <property name="text">
     <string>감독</string>
-   </property>
-  </widget>
-  <widget class="QRadioButton" name="radioButtonGenre">
-   <property name="geometry">
-    <rect>
-     <x>286</x>
-     <y>53</y>
-     <width>60</width>
-     <height>30</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>장르</string>
-   </property>
-  </widget>
-  <widget class="QRadioButton" name="radioButtonYear">
-   <property name="geometry">
-    <rect>
-     <x>336</x>
-     <y>53</y>
-     <width>60</width>
-     <height>30</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>년도</string>
-   </property>
-  </widget>
-  <widget class="QRadioButton" name="radioButtonCountry">
-   <property name="geometry">
-    <rect>
-     <x>386</x>
-     <y>53</y>
-     <width>60</width>
-     <height>30</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>국가</string>
    </property>
   </widget>
   <widget class="QLineEdit" name="lineEdit">
@@ -120,9 +81,9 @@
   <widget class="QListWidget" name="listWidget">
    <property name="geometry">
     <rect>
-     <x>80</x>
-     <y>90</y>
-     <width>400</width>
+     <x>40</x>
+     <y>140</y>
+     <width>151</width>
      <height>300</height>
     </rect>
    </property>
@@ -130,53 +91,131 @@
   <widget class="QPushButton" name="sortNameButton">
    <property name="geometry">
     <rect>
-     <x>488</x>
-     <y>114</y>
+     <x>540</x>
+     <y>190</y>
      <width>120</width>
      <height>60</height>
     </rect>
    </property>
    <property name="text">
-    <string>이름순 정렬</string>
+    <string>영화 제목</string>
    </property>
   </widget>
-  <widget class="QPushButton" name="sortYearButton">
+  <widget class="QPushButton" name="sortDirectorButton">
    <property name="geometry">
     <rect>
-     <x>488</x>
-     <y>314</y>
+     <x>540</x>
+     <y>290</y>
      <width>120</width>
      <height>60</height>
     </rect>
    </property>
    <property name="text">
-    <string>년도순 정렬</string>
+    <string>감독</string>
    </property>
   </widget>
-  <widget class="QPushButton" name="sortRateButton">
+  <widget class="QPushButton" name="sortActorButton">
    <property name="geometry">
     <rect>
-     <x>488</x>
-     <y>214</y>
+     <x>540</x>
+     <y>240</y>
      <width>120</width>
      <height>60</height>
     </rect>
    </property>
    <property name="text">
-    <string>평점순 정렬</string>
+    <string>배우</string>
    </property>
   </widget>
-  <widget class="QPushButton" name="tempButton">
+  <widget class="QListWidget" name="listWidget2">
    <property name="geometry">
     <rect>
-     <x>230</x>
-     <y>400</y>
-     <width>120</width>
-     <height>60</height>
+     <x>200</x>
+     <y>140</y>
+     <width>151</width>
+     <height>301</height>
     </rect>
    </property>
-   <property name="text">
-    <string>화면전환(임시)</string>
+  </widget>
+  <widget class="QListWidget" name="listWidget3">
+   <property name="geometry">
+    <rect>
+     <x>360</x>
+     <y>140</y>
+     <width>151</width>
+     <height>301</height>
+    </rect>
+   </property>
+  </widget>
+  <widget class="QTextEdit" name="textEdit">
+   <property name="geometry">
+    <rect>
+     <x>60</x>
+     <y>110</y>
+     <width>111</width>
+     <height>31</height>
+    </rect>
+   </property>
+   <property name="html">
+    <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+p, li { white-space: pre-wrap; }
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'.AppleSystemUIFont'; font-size:13pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p align=&quot;center&quot; style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;영화 제목&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+   </property>
+  </widget>
+  <widget class="QTextEdit" name="textEdit_2">
+   <property name="geometry">
+    <rect>
+     <x>220</x>
+     <y>110</y>
+     <width>111</width>
+     <height>31</height>
+    </rect>
+   </property>
+   <property name="html">
+    <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+p, li { white-space: pre-wrap; }
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'.AppleSystemUIFont'; font-size:13pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p align=&quot;center&quot; style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;배우&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+   </property>
+  </widget>
+  <widget class="QTextEdit" name="textEdit_3">
+   <property name="geometry">
+    <rect>
+     <x>380</x>
+     <y>110</y>
+     <width>111</width>
+     <height>31</height>
+    </rect>
+   </property>
+   <property name="html">
+    <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+p, li { white-space: pre-wrap; }
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'.AppleSystemUIFont'; font-size:13pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p align=&quot;center&quot; style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;감독&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+   </property>
+  </widget>
+  <widget class="QTextEdit" name="textEdit_4">
+   <property name="geometry">
+    <rect>
+     <x>550</x>
+     <y>160</y>
+     <width>101</width>
+     <height>31</height>
+    </rect>
+   </property>
+   <property name="readOnly">
+    <bool>true</bool>
+   </property>
+   <property name="html">
+    <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+p, li { white-space: pre-wrap; }
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'.AppleSystemUIFont'; font-size:13pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p align=&quot;center&quot; style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;정렬(이름순)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
    </property>
   </widget>
  </widget>
