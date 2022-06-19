@@ -7,7 +7,7 @@ import time
 from bs4 import BeautifulSoup
 from selenium.common.exceptions import NoSuchElementException
 
-#하나의 영화에서 시작하여 연관된 영화를 계속 돌면서 데이터를 모으는 코드
+#하나의 장르에 대한 디렉토리에서 영화를 순차적으로 crawling
 # 2- >2_2 배우/제작진 탭에서 감독에 대한 링크가 없을 경우 그냥 crawling x
 
 #장르 드라마 1 ~ 250

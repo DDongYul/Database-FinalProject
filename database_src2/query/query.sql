@@ -3,26 +3,18 @@ use naver_movie;
 
 -- create table movie(
 -- 	movie_id int unsigned,
---     -- 길이검사
 --     title char(40) not null,
---     
 --     playtime smallint unsigned,
 --     open_date char(8),
---     
 --     movie_rate char(10),
---     
--- 	   story varchar(5000),
-
+-- 	story varchar(5000),
 --     exp_score int unsigned,
---     non_exp_score int unsigned,
---     
+--     non_exp_score int unsigned,    
 --     netizen_score decimal(4,2),
 --     netizen_count int unsigned,
 --     journal_score decimal(4,2),
 --     journal_count int unsigned,
---     
 --     enter_date datetime default now(),
---     
 --     primary key(movie_id)
 -- );
 
@@ -121,9 +113,9 @@ use naver_movie;
 -- alter table director modify dir_profile varchar(10000);
 -- alter table actor modify act_profile varchar(10000);
 
-create index movie_title on movie(title);
-create index director_dir_name on director(dir_name);
-create index actor_act_name on actor(act_name);
+-- create index movie_title on movie(title);
+-- create index director_dir_name on director(dir_name);
+-- create index actor_act_name on actor(act_name);
 
 select * from movie where title = '시네마 천국';
 select * from movie where netizen_count >= 100 order by netizen_score desc;
@@ -166,17 +158,17 @@ select count(*) from movie;
 select count(*) from director;
 select count(*) from exception_table;
 
-select * from movie_netizen_review where movie_id = 101901good_score_list;
-select * from movie_nation where movie_id = 39918;
-select * from movie_journal_review where movie_id = 101901;
-select * from movie_genre where movie_id = 39918;
-select * from movie_director where movie_id = 39918;
-select * from movie_photo where movie_id = 101901;
+select * from movie_netizen_review where movie_id = 192608;
+select * from movie_nation where movie_id = 192608;
+select * from movie_journal_review where movie_id = 192608;
+select * from movie_genre where movie_id = 192608;
+select * from movie_director where movie_id = 192608;
+select * from movie_photo where movie_id = 192608;
 select count(*) from movie_photo where movie_id = 30776;
-select * from movie_actor where movie_id = 39918;
-select * from movie where movie_id = 39918;
-select * from actor where act_id = 33374;
-select * from director where dir_id = 26719;
+select * from movie_actor where movie_id = 192608;
+select * from movie where movie_id = 192608;
+select * from actor where act_id = 47293;
+select * from director where dir_id = 168441;
 
 select * from movie order by enter_date desc;
 select * from actor order by enter_date desc;

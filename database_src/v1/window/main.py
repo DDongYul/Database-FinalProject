@@ -7,7 +7,7 @@ from PyQt5.QtGui import *
 import urllib.request
 from PyQt5 import QtCore,QtWidgets
 
-form_class = uic.loadUiType("mainActivity.ui")[0]
+form_class = uic.loadUiType("C:\Users\junsub\study\2022_1\database_final_project\database_src\v1\window\mainActivity.ui")[0]
 class WindowClass(QMainWindow,form_class ):
     def __init__(self):
         super().__init__()
